@@ -27,8 +27,10 @@ int sev_distri_userid(void)
 	else{
 		new_id = 10000;
 	}
-	if (Per_add_userid(new_id) == 0)
+	if (Per_add_userid(new_id) == 0){
 		add_errorlog_sev(ifo);
+		return 0;
+	}
 
 	return new_id;
 }
