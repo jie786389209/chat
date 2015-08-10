@@ -2,71 +2,46 @@
  * Author	 : zhanggen
  * Email	 : zhanggen.jung@gmail.com
  * Last modified : 2015-08-08 16:22
- * Filename	 : logn.c
- * Description	 : 登录和注册用户,创建群、解散群接口
+ * Filename	 : logn_sev.c
+ * Description	 : 用户登录和登出
  * *****************************************************************************/
 #include "log_sev.h"
-#include "logn.h"
+#include "user_sev.h"
 #include <string.h>
+#include "logn_sev.h"
+#include "../Persistence/user_Per.h"
 
-//注册账号
-int signup_sev(char name[], char passwd[])
+//登录接口,验证成功返回1,密码错误返回2,错误返回-1,id不存在返回0
+int userlognin_sev(unsigned int userid, char passwd[], char ip[])
 {
 	userifo user;
-	char *info;
-	int userid = sev_distri_userid();
-	if (userid == 0){
-		info = "The new user can not distribution user id";
-		add_errorlog_sev(info);
-		return 0;
-	}
-	//将传进来的昵称和密码存进结构体并保存进文件
-	user.id = userid;
-	strcpy(user.name, name);
-	strcpy(user.passwd, passwd);
-	if (save_userifo_Per(&user) == 0){
-		info = "The new user can not save info";
-		add_errorlog_sev(info);
-		return 0;
-	}
-	return userid;
-}
-
-//创建群
-int buildgroup_sev(int userid, char name[])
-{
-	groupifo group;
-	char *info;
-	int groupid = sev_distri_groupid();
-	if (groupid == 0){
-		info = "The new group can not distribution group id";
-		add_errorlog_sev(info);
-		return 0;
-	}
-	//将传进来的群名称和所属者ID存进结构体并保存进文件
-	group.userid = userid;
-	group.groupid = groupid;
-	strcpy(group.name, name);
-	if (save_groupifo_Per(&group) == 0){
-		info = "The new group can not save info";
-		add_errorlog_sev(info);
-		return 0;
-	}
-
-	return groupid;
-}
-
-//解散群
-inline int delgroup_sev(int groupid)
-{
 	char *ifo;
-	if (delgroup_Per(groupid) == 0){
-		ifo = "Can not del the group form grouplist.dat";
-		add_errorlog_sev(ifo);
+	int result = selectuserid_Per(unsigned int userid, &user);
+	if (result == 0){
 		return 0;
 	}
+	else if (result == -1){
+		ifo = "The userlist.dat can not open";
+		add_errorlog_sev(ifo);
+		return -1;
+	}
+	if ((user.id == userid) && (strcmp(passwd, user.passwd) ==0)){
+		ifo = "Lon in"
+		add_lognlog_sev(userid, ip, ifo);
+		return 1;
+	}
+	else{
+		return 2;
+	}
+
+	return -1;
+}
+
+//账号登出
+inline int userlogout_sev(unsigned int userid, char ip[])
+{
+	char *ifo = "Log out";
+	add_lognlog_sev(userid, ip, ifo);
+	
 	return 1;
 }
-
-//登录接口
-int userlogn_sev()

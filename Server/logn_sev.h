@@ -2,26 +2,16 @@
  * Author	 : zhanggen
  * Email	 : zhanggen.jung@gmail.com
  * Last modified : 2015-08-08 17:01
- * Filename	 : logn.h
- * Description	 : 用户登录接口和数据结构
+ * Filename	 : logn_sev.h
+ * Description	 : 用户登录、退出函数和数据结构
  * *****************************************************************************/
+#ifndef LOGN_SEV_H_
+#define LOGN_SEV_H_
 
-//用户信息数据结构
-typedef struct userifo{
-	char name[16];		//用户昵称
-	char passwd[32];	//用户密码
-	int id;				//用户ID
-}userifo;
+//登录接口,验证成功返回1,密码错误返回2,错误返回-1,id不存在返回0
+int userlognin_sev(unsigned int userid, char passwd[], char ip[]);
 
-//群组信息数据结构
-typedef struct groupifo{
-	char name[32];		//群组名称
-	int userid;			//所属者ID
-	int groupid;		//群组ID
-}groupifo;
+//账号登出
+inline int userlogout_sev(unsigned int userid, char ip[]);
 
-//注册账号
-int signup_sev(char name[], char passwd[]);
-//创建群
-int buildgroup_sev(int userid, char name[]);
-
+#endif

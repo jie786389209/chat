@@ -19,10 +19,11 @@ int Per_find_userid(void)
 	FILE *fp;
 	char *path = get_pwd();
 	ID data;
-	if (chdir("dat") == -1)
-		system("mkdir dat");
+	if (chdir("./data") == -1)
+		system("mkdir data");
 	if ((fp = fopen(ID_FILE,"rb")) == NULL){
 		system("touch id.dat");
+		chdir(path);
 		return 0;
 	}
 	else{
@@ -42,15 +43,15 @@ int Per_find_userid(void)
 }
 
 //更新ID到文件
-int Per_add_userid(int new_id)
+int Per_add_userid(unsigned int new_id)
 {
 	FILE *fp,*fp1;
 	char *path = get_pwd();
-	if (chdir("dat") == -1)
-		system("mkdir dat");
 	ID data;
 	int flag = 0;
 
+	if (chdir("./data") == -1)
+		system("mkdir data");
 	if (rename(ID_FILE, ID_FILE_TEMP) < 0){
 		chdir(path);
 		return 0;
@@ -72,6 +73,7 @@ int Per_add_userid(int new_id)
 		}
 		fwrite(&data,sizeof(ID), 1, fp);
 	}
+	//还无此类型,添加此类型
 	if (flag == 0)
 	{
 		strcpy(data.type, "userid");
@@ -92,8 +94,8 @@ int Per_find_groupid(void)
 	FILE *fp;
 	ID data;
 	char *path = get_pwd();
-	if (chdir("dat") == -1)
-		system("mkdir dat");
+	if (chdir("./data") == -1)
+		system("mkdir data");
 	if ((fp = fopen(ID_FILE,"rb")) == NULL){
 		system("touch id.dat");
 		chdir(path);
@@ -116,13 +118,13 @@ int Per_find_groupid(void)
 }
 
 //添加新ID到文件
-int Per_add_groupid(int new_id)
+int Per_add_groupid(unsigned int new_id)
 {
 	FILE *fp,*fp1;
 	ID data;
 	int flag = 0;
 	char *path = get_pwd();
-	if (chdir("dat") == -1)
+	if (chdir("./data") == -1)
 		system("mkdir dat");
 
 	if (rename(ID_FILE, ID_FILE_TEMP) < 0){
@@ -146,6 +148,7 @@ int Per_add_groupid(int new_id)
 		}
 		fwrite(&data,sizeof(ID), 1, fp);
 	}
+	//还无此类型,创建此类型
 	if (flag == 0)
 	{
 		strcpy(data.type,"groupid");
