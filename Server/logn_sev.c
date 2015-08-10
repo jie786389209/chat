@@ -16,7 +16,7 @@ int userlognin_sev(unsigned int userid, char passwd[], char ip[])
 {
 	userifo user;
 	char *ifo;
-	int result = selectuserid_Per(unsigned int userid, &user);
+	int result = selectuserid_Per(userid, &user);
 	if (result == 0){
 		return 0;
 	}
@@ -26,8 +26,12 @@ int userlognin_sev(unsigned int userid, char passwd[], char ip[])
 		return -1;
 	}
 	if ((user.id == userid) && (strcmp(passwd, user.passwd) ==0)){
-		ifo = "Lon in"
-		add_lognlog_sev(userid, ip, ifo);
+		ifo = "Lon in";
+		if (add_lognlog_sev(userid, ip, ifo) == 0){
+			ifo = "Can not add lognlog of Log In";
+			add_errorlog_sev(ifo);
+			return -1;
+		}
 		return 1;
 	}
 	else{
@@ -41,7 +45,13 @@ int userlognin_sev(unsigned int userid, char passwd[], char ip[])
 inline int userlogout_sev(unsigned int userid, char ip[])
 {
 	char *ifo = "Log out";
-	add_lognlog_sev(userid, ip, ifo);
+
+	if (add_lognlog_sev(userid, ip, ifo) == 0){
+		ifo = "Can not add lognlog of Log Out";
+		add_errorlog_sev(ifo);
+
+		return -1;
+	}
 	
 	return 1;
 }

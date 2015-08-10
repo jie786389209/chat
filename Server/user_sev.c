@@ -1,10 +1,10 @@
-/*******************************************************************************
+/****************************************************************************************
  * Author	 : zhanggen
  * Email	 : zhanggen.jung@gmail.com
  * Last modified : 2015-08-10 09:53
  * Filename	 : user_sev.c
- * Description	 : 用户的注册、加好友、删除好友、修改好友、修改群名称操作
- * *****************************************************************************/
+ * Description	 : 用户的注册、加好友、删除好友、修改好友备注、修改群名片操作
+ * *************************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include "../Persistence/user_Per.h"
@@ -18,7 +18,7 @@ unsigned int signup_sev(char name[], char passwd[])
 	char a[20];
 	unsigned int userid = sev_distri_userid();
 	if (userid == 0){
-		info = "The new user can not distribution user id";
+		strcpy(info, "The new user can not distribution user id");
 		add_errorlog_sev(info);
 		return 0;
 	}
@@ -27,13 +27,115 @@ unsigned int signup_sev(char name[], char passwd[])
 	strcpy(user.name, name);
 	strcpy(user.passwd, passwd);
 	if (save_userifo_Per(&user) == 0){
-		info = "The new user can not save info";
+		strcpy(info, "The new user can not save info");
 		add_errorlog_sev(info);
 		return 0;
 	}
-	ifo = "The new user sign up   ";
+	strcpy(info, "The new user sign up   ");
 	sprintf(a, "%d", userid);
-	strcat(ifo, a);
-	add_syslog_sev(ifo);
+	strcat(info, a);
+	add_syslog_sev(info);
 	return userid;
+}
+
+//添加好友
+int add_friend_sev(unsigned int userid, unsigned int friendid)
+{
+	userifo user;
+	char *ifo;
+	int result = selectuserid_Per(friendid, &user);
+	//自己列表中添加好友
+	if (result == -1){
+		ifo = "Can not open the data";
+		add_errorlog_sev(ifo);
+		return -1;
+	}
+	if (result == 0){
+		return 0;
+	}
+	if (add_friend_Per(userid, &user) == 0){
+		ifo = "Can not save the info of friend";
+		add_errorlog_sev(ifo);
+		return -1;
+	}
+	//被添加用户列表中添加自己
+	result = selectuserid_Per(userid, &user);
+	if (result == -1){
+		ifo = "Can not open the data";
+		add_errorlog_sev(ifo);
+		return -1;
+	}
+	if (result == 0){
+		return 0;
+	}
+	if (add_friend_Per(friendid, &user) == 0){
+		ifo = "Can not save the info of friend";
+		add_errorlog_sev(ifo);
+		return -1;
+	}
+
+	return 1;
+}
+
+//删除好友,成功返回1,出错返回-1,好友不存在返回0
+int del_friend_sev(unsigned int friendid, unsigned int userid)
+{
+	char *ifo;
+	int result;
+	//自己列表中删除好友
+	result = del_friend_Per(firendid, userid);
+	if (result == -1){
+		ifo = "Can not open the file of user_list.dat";
+		return -1;
+	}
+	if (result == 0){
+		return 0;
+	}
+	//好友列表中删除自己
+	result = del_friend_Per(userid, friendid);
+	if (result == -1){
+		ifo = "Can not open the file of user_list.dat";
+		return -1;
+	}
+	if (result == 0){
+		return 0;
+	}
+
+	return 1;
+}
+
+//修改好友备注
+int update_friend_sev(unsigned int friendid, unsigned int userid, char name[])
+{
+	char *ifo;
+	int reault = update_friend_Per(friendid, userid, name);
+	
+	if (result == -1){
+		ifo = "Can not open the file of user_list.dat";
+		add_errorlog_sev(ifo);
+		return -1;
+	}
+	if (result == 0){
+		return 0;
+	}
+
+	return 1;
+}
+
+//修改群名片
+int update_groupname_sev(unsigned int groupid, unsigned int userid, char name[])
+{
+	char *ifo;
+	int result = update_groupname_Per(groupid, userid, name);
+
+	if (result == -1){
+		ifo = "Can not open the file of group_list.dat";
+		add_errorlog_sev(ifo);
+		return -1;
+	}
+	if (result == 0){
+		return 0;
+	}
+
+	return 1;
 }

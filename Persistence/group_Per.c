@@ -13,10 +13,10 @@
 #include "group_Per.h"
 
 static const char GROUP_FILE[] = "group.dat";
-static const char GROUP_FILE_TEMP[] = "grouptemp.dat"
+static const char GROUP_FILE_TEMP[] = "grouptemp.dat";
 
 //保存新创建群进文件,并创建群列表文件
-int  save_groupifo_Per(groupifo *group)
+int save_groupifo_Per(groupifo *group)
 {
 	char *path = get_pwd();
 	FILE *fp;
@@ -29,7 +29,7 @@ int  save_groupifo_Per(groupifo *group)
 		chdir(path);
 		return 0;
 	}
-	if (fwrite(user, sizeof(userifo), 1, fp) == 0)
+	if (fwrite(group, sizeof(groupifo), 1, fp) == 0)
 		return 0;
 	
 	strcpy(cmd, "touch ");
@@ -66,7 +66,7 @@ int delgroup_Per(unsigned int groupid)
 		chdir(path);
 		return 0;
 	}
-	while(!eof(fp1)){
+	while(!feof(fp1)){
 		if (fread(&group, sizeof(groupifo), 1, fp1)){
 			if (group.groupid == groupid){
 				continue;

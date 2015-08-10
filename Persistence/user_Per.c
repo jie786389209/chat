@@ -21,8 +21,12 @@ int  save_userifo_Per(userifo *user)
 	char cmd[25];
 	FILE *fp;
 
-	if (chdir("./data") == -1)
+	if (chdir("./data") == -1){
 		system("mkdir data");
+		if (chdir("./data") == -1){
+			rerurn 0;
+		}
+	}
 	if ((fp = fopen(USER_FILE, "ab+")) == NULL){
 		chdir(path);
 		return 0;
@@ -43,4 +47,36 @@ int  save_userifo_Per(userifo *user)
 
 	return 1;
 }
+
+//从文件里通过ID获取账号信息
+int selectuserid_Per(unsigned int userid, userifo *user)
+{
+	FILE *fp;
+	char *path = get_pwd();
+
+	if (chdir("./data") == -1){
+		system("mkdir data");
+		if (chdir("./data") == -1){
+			return -1;
+		}	
+	}
+	if ((fp = fopen(USER_FILE, "rb")) == NULL){
+		chdir(path);
+		return -1;
+	}
+	while(!feof(fp)){
+		if (fread(user, sizeof(userifo), 1, fp)){
+			if (user->id == userid){
+				fclose(fp);
+				chdir(path);
+				return 1;
+			}
+		}
+	}
+	fclose(fp);
+	chdir(path);
+	return 0;
+}
+
+//向userid所指的列表文件中添加friendid为好友
 

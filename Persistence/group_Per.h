@@ -7,6 +7,7 @@
  * *****************************************************************************/
 #ifndef GROUP_PER_H_
 #define GROUP_PER_H_
+#include "../Server/group_sev.h"
 
 //保存新创建群进文件,并创建群列表文件
 int  save_groupifo_Per(groupifo *group);

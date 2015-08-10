@@ -15,11 +15,33 @@ int add_errorlog_sev(char ifo[])
 {
 	char now_time[25];
 	date_now(now_time);
-	if (add_errorlog_Per(ifo, now_time) == 0)
-	{
+	if (add_errorlog_Per(ifo, now_time) == 0){
 		return 0;
 	}
+
 	return 1;
 }
 
+//添加系统日志
+int add_syslog_sev(char ifo[])
+{
+	char now_time[25];
+	date_now(now_time);
+	if (add_syslog_Per(ifo, now_time) == 0){
+		return 0;
+	}
 
+	return 1;
+}
+
+//添加登录 or 登出日志
+int add_lognlog_sev(unsigned int userid, char ip[], char ifo[])
+{
+	char now_time[25];
+	date_now(now_time);
+	if (add_lognlog_Per(userid, ip, ifo, now_time) == 0){
+		return 0;
+	}
+
+	return 1;
+}

@@ -11,4 +11,7 @@
 //添加错误日志
 int add_errorlog_Per(char ifo[], char time[]);
 
+//添加系统日志到文件
+int add_syslog_Per(char ifo[], char time[]);
+
 #endif

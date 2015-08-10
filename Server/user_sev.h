@@ -18,4 +18,16 @@ typedef struct userifo{
 //注册账号
 unsigned int signup_sev(char name[], char passwd[]);
 
+//添加好友
+int add_friend_sev(unsigned int userid, unsigned int friendid);
+
+//删除好友,成功返回1,出错返回-1,好友不存在返回0
+int del_friend_sev(unsigned int friendid, unsigned int userid);
+
+//修改好友备注
+int update_friend_sev(unsigned int friendid, unsigned int userid, char name[]);
+
+//修改群名片
+int update_groupname_sev(unsigned int groupid, unsigned int userid, char name[]);
+
 #endif
