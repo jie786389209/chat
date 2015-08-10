@@ -42,6 +42,7 @@ unsigned int signup_sev(char name[], char passwd[])
 int add_friend_sev(unsigned int userid, unsigned int friendid)
 {
 	userifo user;
+	userlist newfriend;
 	char *ifo;
 	int result = selectuserid_Per(friendid, &user);
 	//自己列表中添加好友
@@ -53,7 +54,10 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	if (result == 0){
 		return 0;
 	}
-	if (add_friend_Per(userid, &user) == 0){
+	strcpy(newfriend.name, user.name);
+	newfriend.type = 0;	//表示为好友
+	newfriend.id = friendid;
+	if (add_friend_Per(userid, &newfriend) == 0){
 		ifo = "Can not save the info of friend";
 		add_errorlog_sev(ifo);
 		return -1;
@@ -68,7 +72,10 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	if (result == 0){
 		return 0;
 	}
-	if (add_friend_Per(friendid, &user) == 0){
+	strcpy(newfriend.name, user.name);
+	newfriend.type = 0;	//表示为好友
+	newfriend.id = userid;
+	if (add_friend_Per(friendid, &newfriend) == 0){
 		ifo = "Can not save the info of friend";
 		add_errorlog_sev(ifo);
 		return -1;
@@ -83,7 +90,7 @@ int del_friend_sev(unsigned int friendid, unsigned int userid)
 	char *ifo;
 	int result;
 	//自己列表中删除好友
-	result = del_friend_Per(firendid, userid);
+	result = del_friend_Per(friendid, userid);
 	if (result == -1){
 		ifo = "Can not open the file of user_list.dat";
 		return -1;
@@ -105,10 +112,10 @@ int del_friend_sev(unsigned int friendid, unsigned int userid)
 }
 
 //修改好友备注
-int update_friend_sev(unsigned int friendid, unsigned int userid, char name[])
+int update_friend_sev(unsigned int userid, unsigned int friendid, char name[])
 {
 	char *ifo;
-	int reault = update_friend_Per(friendid, userid, name);
+	int result = update_friend_Per(userid, friendid, name, 0);
 	
 	if (result == -1){
 		ifo = "Can not open the file of user_list.dat";
@@ -126,7 +133,7 @@ int update_friend_sev(unsigned int friendid, unsigned int userid, char name[])
 int update_groupname_sev(unsigned int groupid, unsigned int userid, char name[])
 {
 	char *ifo;
-	int result = update_groupname_Per(groupid, userid, name);
+	int result = update_friend_Per(groupid, userid, name, 1);
 
 	if (result == -1){
 		ifo = "Can not open the file of group_list.dat";

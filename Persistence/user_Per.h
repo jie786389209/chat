@@ -13,4 +13,16 @@
 //将新注册用户的信息保存进文件,并建立该账号的列表文件
 int  save_userifo_Per(userifo *user);
 
+//从文件里通过ID获取账号信息
+int selectuserid_Per(unsigned int userid, userifo *user);
+
+//向userid所指的列表文件中添加好友或群组
+int add_friend_Per(unsigned int userid, userlist *newfriend);
+
+//删除userid列表文件中的friendid好友或群组
+int del_friend_Per(unsigned int friendid, unsigned int userid);
+
+//修改好友备注
+int update_friend_Per(unsigned int userid, unsigned int friendid, char name[], int type);
+
 #endif

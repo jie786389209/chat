@@ -15,6 +15,13 @@ typedef struct userifo{
 	unsigned int id;				//用户ID
 }userifo;
 
+//用户列表数据结构
+typedef struct userlist{
+	char name[16];
+	int type;				//标识是好友还是群
+	unsigned int id;
+}userlist;
+
 //注册账号
 unsigned int signup_sev(char name[], char passwd[]);
 

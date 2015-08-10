@@ -45,3 +45,7 @@ inline int delgroup_sev(unsigned int groupid)
 	}
 	return 1;
 }
+
+//加群
+
+//退群

@@ -15,6 +15,7 @@ typedef struct groupifo{
 	unsigned int groupid;		//群组ID
 }groupifo;
 
+
 //创建群
 unsigned int buildgroup_sev(unsigned int userid, char name[]);
 
