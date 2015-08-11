@@ -18,7 +18,7 @@
 static const char USER_FILE[] = "user.dat";
 
 //寻找friendid是否在列表中
-int finduser_Per(unsigned int userid, unsigned int friendid, int type)
+int finduser_Per(unsigned int userid, unsigned int friendid, int type, userlist *data)
 {
 	char *path = get_pwd();
 	char id[25];
@@ -39,7 +39,8 @@ int finduser_Per(unsigned int userid, unsigned int friendid, int type)
 		return -1;
 	}
 	if (fread(&user, sizeof(userlist), 1, fp)){
-		if (user.id == friendid){
+		if ((user.id == friendid) && (user.type == type)){
+			*data = user;
 			fclose(fp);
 			chdir(path);
 			return 1;

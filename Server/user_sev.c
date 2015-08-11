@@ -10,11 +10,11 @@
 #include "../Persistence/user_Per.h"
 #include "log_sev.h"
 
-inline int finduser_sev(unsigned int userid, unsigned int friendid, int type)
+inline int finduser_sev(unsigned int userid, unsigned int friendid, int type, userlist *data)
 {
 	int result;
 	char *ifo;
-	result = finduser_Per(userid, friendid, type);
+	result = finduser_Per(userid, friendid, type, data);
 	if (result == -1){
 		ifo = "The file can not open!";
 		add_errorlog_sev(ifo);
@@ -67,7 +67,7 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	if (result == 0){
 		return 0;
 	}
-	if (finduser_sev(userid, friendid, 0) == 1)
+	if (finduser_sev(userid, friendid, 0, newfriend) == 1)
 		return 2;
 	strcpy(newfriend.name, user.name);
 	newfriend.type = 0;	//表示为好友

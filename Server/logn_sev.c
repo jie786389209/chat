@@ -11,7 +11,7 @@
 #include "logn_sev.h"
 #include "../Persistence/user_Per.h"
 
-//登录接口,验证成功返回1,密码错误返回2,错误返回-1,id不存在返回0
+//登录接口,验证成功返回1,密码错误返回0,错误返回-1,id不存在返回0
 int userlognin_sev(unsigned int userid, char passwd[], char ip[])
 {
 	userifo user;
@@ -35,7 +35,7 @@ int userlognin_sev(unsigned int userid, char passwd[], char ip[])
 		return 1;
 	}
 	else{
-		return 2;
+		return 0;
 	}
 
 	return -1;

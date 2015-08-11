@@ -65,7 +65,8 @@ inline int delgroup_sev(unsigned int groupid)
 int joingroup_sev(unsigned int userid, unsigned int groupid)
 {
 	char *ifo;
-	userlist newgroup,user;
+	userlist newgroup,newuser;
+	userifo user;
 	groupifo group;
 	int result = selectgroup_sev(groupid, &group);
 	if (result == -1){
@@ -74,7 +75,7 @@ int joingroup_sev(unsigned int userid, unsigned int groupid)
 	else if (result == 0){
 		return 0;
 	}
-	if (finduser_sev(userid, groupid, 1) == 1){
+	if (finduser_sev(userid, groupid, 1, &newuser) == 1){
 		return 2;
 	}
 	newgroup.id = group.groupid;
@@ -82,11 +83,14 @@ int joingroup_sev(unsigned int userid, unsigned int groupid)
 	newgroup.type = 1;
 	//根据用户ID提取用户信息
 	selectuserid_Per(userid, &user);
-	//添加进用户好友列表
+	newuser.id = user.id;
+	strcpy(newuser.name, user.name);
+	newuser.type = 0;
+	//添加群进用户好友列表
 	if (add_friend_Per(userid, &newgroup) != 1)
 		return 0;
-	//添加进群的用户列表
-	if (add_friend_Per(groupid, &user))
+	//添加用户进群的用户列表
+	if (add_friend_Per(groupid, &newuser) != 1)
 		return 0;
 
 	return 1;
