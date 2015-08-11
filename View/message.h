@@ -21,7 +21,7 @@ typedef struct onlinelist{
 typedef struct datapack{
 	char flag[12];
 	char data[1024];
-	char name[32];
+	char name[64];
 	unsigned int source_id;
 	unsigned int target_id;
 }datapack;

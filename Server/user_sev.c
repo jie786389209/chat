@@ -51,7 +51,7 @@ unsigned int signup_sev(char name[], char passwd[])
 	return userid;
 }
 
-//添加好友,出错返回-1,已存在返回2,成功返回1
+//添加好友,出错返回-1,已存在返回2,成功返回1,未找到返回0
 int add_friend_sev(unsigned int userid, unsigned int friendid)
 {
 	userifo user;
@@ -60,7 +60,7 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	int result = selectuserid_Per(friendid, &user);
 	//自己列表中添加好友
 	if (result == -1){
-		ifo = "Can not open the data";
+		ifo = "Can not open the user.dat";
 		add_errorlog_sev(ifo);
 		return -1;
 	}
