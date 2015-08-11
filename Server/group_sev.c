@@ -3,12 +3,14 @@
  * Email	 : zhanggen.jung@gmail.com
  * Last modified : 2015-08-10 09:32
  * Filename	 : group_sev.c
- * Description	 : 创建群、查找群、加群、退群、解散群操作
+ * Description	 : 创建群、查找群、加群、退群、解散群
  * *****************************************************************************/
 #include <string.h>
 #include "log_sev.h"
 #include "../Persistence/group_Per.h"
+#include "user_sev.h"
 #include <stdio.h>
+#include "group_sev.h"
 
 //创建群
 unsigned int buildgroup_sev(unsigned int userid, char name[])
@@ -34,6 +36,19 @@ unsigned int buildgroup_sev(unsigned int userid, char name[])
 	return groupid;
 }
 
+//获取群信息
+inline int selectgroup_sev(unsigned int groupid, groupifo *group)
+{
+	char *info;
+	int result = selectgroup_Per(groupid, group);
+	if (result == -1){
+		info = "Can not select groupinfo";
+		add_errorlog_sev(info);
+	}
+	
+	return result;
+}
+
 //解散群
 inline int delgroup_sev(unsigned int groupid)
 {
@@ -46,6 +61,40 @@ inline int delgroup_sev(unsigned int groupid)
 	return 1;
 }
 
-//加群
+//加群,错误返回-1,成功返回1,失败返回0,已加过该群返回2
+int joingroup_sev(unsigned int userid, unsigned int groupid)
+{
+	char *ifo;
+	userlist newgroup,user;
+	groupifo group;
+	int result = selectgroup_sev(groupid, &group);
+	if (result == -1){
+		return -1;
+	}
+	else if (result == 0){
+		return 0;
+	}
+	if (finduser_sev(userid, groupid, 1) == 1){
+		return 2;
+	}
+	newgroup.id = group.groupid;
+	strcpy(newgroup.name, group.name);
+	newgroup.type = 1;
+	//根据用户ID提取用户信息
+	selectuserid_Per(userid, &user);
+	//添加进用户好友列表
+	if (add_friend_Per(userid, &newgroup) != 1)
+		return 0;
+	//添加进群的用户列表
+	if (add_friend_Per(groupid, &user))
+		return 0;
 
-//退群
+	return 1;
+}
+
+//退群,成功返回1,错误返回-1,群不存在或未加群返回0
+inline int quitgroup_sev(unsigned int userid, unsigned int groupid)
+{
+	return del_friend_sev(groupid, userid);
+}
+

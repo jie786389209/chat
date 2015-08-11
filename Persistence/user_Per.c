@@ -10,11 +10,50 @@
 #include "../Server/user_sev.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/sendfile.h>
+#include <fcntl.h>
 
 static const char USER_FILE[] = "user.dat";
 
+//寻找friendid是否在列表中
+int finduser_Per(unsigned int userid, unsigned int friendid, int type)
+{
+	char *path = get_pwd();
+	char id[25];
+	FILE *fp;
+	userlist user;
+
+	if (chdir("./data") == -1){
+		system("mkdir data");
+		if (chdir("./data") == -1){
+			return -1;
+		}
+	}
+	
+	sprintf(id, "%d", userid);
+	strcat(id, "_list.dat");
+	if ((fp = fopen(id, "rb")) == NULL){
+		chdir(path);
+		return -1;
+	}
+	if (fread(&user, sizeof(userlist), 1, fp)){
+		if (user.id == friendid){
+			fclose(fp);
+			chdir(path);
+			return 1;
+		}
+	}
+	fclose(fp);
+	chdir(path);
+
+	return 0;
+
+}
+
 //将新注册用户的信息保存进文件,并建立该账号的列表文件
-int  save_userifo_Per(userifo *user)
+int save_userifo_Per(userifo *user)
 {
 	char *path = get_pwd();
 	char id[25];
@@ -65,7 +104,7 @@ int selectuserid_Per(unsigned int userid, userifo *user)
 		return -1;
 	}
 	while(!feof(fp)){
-		if (fread(user, sizeof(userifo), 1, fp)){
+		if (fread(&user, sizeof(userifo), 1, fp)){
 			if (user->id == userid){
 				fclose(fp);
 				chdir(path);
@@ -98,7 +137,6 @@ int add_friend_Per(unsigned int userid, userlist *newfriend)
 		chdir(path);
 		return 0;
 	}
-
 	if (fwrite(newfriend, sizeof(userlist), 1, fp) == 0){
 		fclose(fp);
 		chdir(path);
@@ -192,4 +230,53 @@ int update_friend_Per(unsigned int userid, unsigned int friendid, char name[], i
 		return 0;
 
 	return 1;	
+}
+
+int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
+{
+	char *path = get_pwd();
+	char filename[25];
+	struct stat buf;
+	int fd;
+	userlist user;
+	if (chdir("./data") == -1){
+		system("mkdir data");
+		if (chdir("./data") == -1){
+			return -1;
+		}
+	}
+	
+	if (groupid == 0){
+		sprintf(filename, "%d", userid);
+		strcat(filename, "_list.dat");
+		if (stat(filename, 	&buf) == -1){
+			chdir(path);
+			return -1;
+		}
+		if ((fd = open(filename, O_RDONLY)) < 0){
+			chdir(path);
+			return -1;
+		}
+		sendfile(sock, fd, NULL, buf.st_size);
+		close(fd);
+		return 1;
+	}
+	else{
+		chdir(path);
+		if (finduser_Per(userid, groupid, 1) == 1){
+			sprintf(filename, "%d", groupid);
+			strcat(filename, "_list.dat");
+			if (stat(filename, 	&buf) == -1){
+				chdir(path);
+				return -1;
+			}
+			if ((fd = open(filename, O_RDONLY)) < 0){
+				chdir(path);
+				return -1;
+			}
+			sendfile(sock, fd, NULL, buf.st_size);
+			close(fd);
+			return 1;
+		}
+	}
 }

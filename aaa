@@ -1,0 +1,1 @@
+gcc Common/*.c Server/*.c Persistence/*.c

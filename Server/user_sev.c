@@ -1,14 +1,27 @@
-/****************************************************************************************
+/****************************************************************************************************
  * Author	 : zhanggen
  * Email	 : zhanggen.jung@gmail.com
  * Last modified : 2015-08-10 09:53
  * Filename	 : user_sev.c
- * Description	 : 用户的注册、加好友、删除好友、修改好友备注、修改群名片操作
- * *************************************************************************************/
+ * Description	 : 用户的注册、加好友、删除好友、修改好友备注、修改群名片、查看好友列表和群列表
+ ***************************************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include "../Persistence/user_Per.h"
 #include "log_sev.h"
+
+inline int finduser_sev(unsigned int userid, unsigned int friendid, int type)
+{
+	int result;
+	char *ifo;
+	result = finduser_Per(userid, friendid, type);
+	if (result == -1){
+		ifo = "The file can not open!";
+		add_errorlog_sev(ifo);
+	}
+
+	return result;
+}
 
 //注册账号
 unsigned int signup_sev(char name[], char passwd[])
@@ -38,7 +51,7 @@ unsigned int signup_sev(char name[], char passwd[])
 	return userid;
 }
 
-//添加好友
+//添加好友,出错返回-1,已存在返回2,成功返回1
 int add_friend_sev(unsigned int userid, unsigned int friendid)
 {
 	userifo user;
@@ -54,6 +67,8 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	if (result == 0){
 		return 0;
 	}
+	if (finduser_sev(userid, friendid, 0) == 1)
+		return 2;
 	strcpy(newfriend.name, user.name);
 	newfriend.type = 0;	//表示为好友
 	newfriend.id = friendid;
@@ -145,4 +160,10 @@ int update_groupname_sev(unsigned int groupid, unsigned int userid, char name[])
 	}
 
 	return 1;
+}
+
+//查看好友列表和群列表,查看好友列表时第二个参数为0
+inline int glancelist_sev(unsigned int userid, unsigned int groupid, int sock)
+{
+	return glancelist_Per(userid, groupid, sock);
 }

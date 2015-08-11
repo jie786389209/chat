@@ -10,10 +10,43 @@
 #include <unistd.h>
 #include "../Common/common.h"
 #include "../Server/group_sev.h"
+#include "../Server/user_sev.h"
 #include "group_Per.h"
 
 static const char GROUP_FILE[] = "group.dat";
 static const char GROUP_FILE_TEMP[] = "grouptemp.dat";
+
+//获取群信息,成功1,错误-1,未找到0
+int selectgroup_Per(unsigned int groupid, groupifo *group)
+{
+	char *path = get_pwd();
+	FILE *fp;
+
+	if (chdir("./data") == -1){
+		system("mkdir data");
+		if (chdir("./data") == -1){
+			return -1;
+		}
+	}
+	if ((fp = fopen(GROUP_FILE, "rb")) == NULL){
+		chdir(path);
+		return -1;
+	}
+	while(!feof(fp)){
+		if (fread(group, sizeof(groupifo), 1, fp)){
+			if (group->groupid == groupid){
+				fclose(fp);
+				chdir(path);
+				return 1;
+			}
+		}
+	}
+
+	fclose(fp);
+	chdir(path);
+
+	return 0;	
+}
 
 //保存新创建群进文件,并创建群列表文件
 int save_groupifo_Per(groupifo *group)
@@ -23,8 +56,12 @@ int save_groupifo_Per(groupifo *group)
 	char id[25];
 	char cmd[25];
 
-	if (chdir("./data") == -1)
+	if (chdir("./data") == -1){
 		system("mkdir data");
+		if (chdir("./data") == -1){
+			return 0;
+		}
+	}
 	if ((fp = fopen(GROUP_FILE, "ab+")) == NULL){
 		chdir(path);
 		return 0;
@@ -48,11 +85,16 @@ int delgroup_Per(unsigned int groupid)
 {
 	FILE *fp, *fp1;
 	char *path = get_pwd();
+	char name[25];
 	groupifo group;
+	userlist data;
 	
 	//删除群列表文件中的群信息
 	if (chdir("./data") == -1){
 		system("mkdir data");
+		if (chdir("./data") == -1){
+			return 0;
+		}
 	}
 	if (rename(GROUP_FILE, GROUP_FILE_TEMP) < 0){
 		chdir(path);
@@ -63,6 +105,7 @@ int delgroup_Per(unsigned int groupid)
 		return 0;
 	}
 	if ((fp1 = fopen(GROUP_FILE_TEMP, "rb")) == NULL){
+		fclose(fp);
 		chdir(path);
 		return 0;
 	}
@@ -76,6 +119,19 @@ int delgroup_Per(unsigned int groupid)
 	}
 	fclose(fp);
 	fclose(fp1);
+	//删除每个用户文件中的群信息
+	sprintf(name, "%d", groupid);
+	strcat(name, "_list.dat");
+	if ((fp = fopen(name, "rb")) == NULL){
+		chdir(path);
+		return 0;
+	}
+	while(!feof(fp)){
+		if (fread(&data, sizeof(userlist), 1, fp)){
+			del_friend_Per(data.id, groupid);
+			del_friend_Per(groupid, data.id);
+		}
+	}
 	chdir(path);
 	remove(GROUP_FILE_TEMP);
 
