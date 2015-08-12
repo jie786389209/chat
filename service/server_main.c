@@ -13,10 +13,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include "message.h"
-#include "../Common/common.h"
-#include "../Common/list.h"
-#include "../Server/log_sev.h"
+#include "./View/message.h"
+#include "./Common/common.h"
+#include "./Common/list.h"
+#include "./Server/log_sev.h"
 
 int main(void)
 {
