@@ -44,11 +44,9 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 				sprintf(name, "%u", userid);
 				strcat(buf->data, name);
 				strcat(buf->data, "\n请您牢记您的账号和密码(打死也不要将密码告诉别人呦~~)\n");
-				strcpy(buf->flag, "yes");
 			}
 			else{
 				strcpy(buf->data, "亲~~现在系统繁忙,请您稍后重试~~\n");
-				strcpy(buf->flag, "no");
 			}
 		}
 		//登录
@@ -66,13 +64,12 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			}
 			userid = atoi(user);
 			if (userlognin_sev(userid, passwd, ip) == 0){
-				strcpy(buf->flag, "yes");
 				strcpy(buf->data, "亲~~您的账号或者密码错了呦~~\n");
 			}
 			else{
 				pNode->id = userid;
+				strcpy(buf->flag, "logn in yes");
 				strcpy(buf->data, "登陆成功,正在努力跳转~~\n");
-				strcpy(buf->flag, "yes");
 			}
 		}
 	}
