@@ -132,6 +132,8 @@ int delgroup_Per(unsigned int groupid)
 			del_friend_Per(groupid, data.id);
 		}
 	}
+	fclose(fp);
+	remove(name);
 	chdir(path);
 	remove(GROUP_FILE_TEMP);
 

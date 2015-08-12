@@ -38,6 +38,6 @@ int update_friend_sev(unsigned int friendid, unsigned int userid, char name[]);
 int update_groupname_sev(unsigned int groupid, unsigned int userid, char name[]);
 
 //从列表文件中找寻friendid是否存在
-inline int finduser_sev(unsigned int userid, unsigned int friendid, int type);
+inline int finduser_sev(unsigned int userid, unsigned int friendid, int type, userlist *data);
 
 #endif

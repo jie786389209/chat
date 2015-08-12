@@ -32,6 +32,11 @@ unsigned int buildgroup_sev(unsigned int userid, char name[])
 		add_errorlog_sev(info);
 		return 0;
 	}
+	if (joingroup_sev(userid, groupid) !=  1){
+		info = "Can not add new friend to group";
+		add_errorlog_sev(info);
+		return 0;
+	}
 
 	return groupid;
 }

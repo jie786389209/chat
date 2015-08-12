@@ -26,6 +26,6 @@ int del_friend_Per(unsigned int friendid, unsigned int userid);
 int update_friend_Per(unsigned int userid, unsigned int friendid, char name[], int type);
 
 //寻找friendid是否在列表中
-int finduser_Per(unsigned int userid, unsigned int friendid, int type);
+int finduser_Per(unsigned int userid, unsigned int friendid, int type, userlist *data);
 
 #endif

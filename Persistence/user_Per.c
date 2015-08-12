@@ -264,7 +264,7 @@ int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 	}
 	else{
 		chdir(path);
-		if (finduser_Per(userid, groupid, 1) == 1){
+		if (finduser_Per(userid, groupid, 1, &user) == 1){
 			sprintf(filename, "%d", groupid);
 			strcat(filename, "_list.dat");
 			if (stat(filename, 	&buf) == -1){

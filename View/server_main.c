@@ -110,7 +110,7 @@ int main(void)
 							del_node(pHead, pTemp, onlinelist);
 						}
 						else{
-								//待填充
+							analyzedatapack(&buf, pTemp->sock, pTemp->ip, pHead, pTemp);
 						}
 					}
 				}

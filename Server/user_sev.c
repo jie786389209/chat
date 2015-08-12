@@ -67,7 +67,7 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	if (result == 0){
 		return 0;
 	}
-	if (finduser_sev(userid, friendid, 0, newfriend) == 1)
+	if (finduser_sev(userid, friendid, 0, &newfriend) == 1)
 		return 2;
 	strcpy(newfriend.name, user.name);
 	newfriend.type = 0;	//表示为好友

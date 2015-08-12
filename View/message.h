@@ -25,5 +25,7 @@ typedef struct datapack{
 	unsigned int source_id;
 	unsigned int target_id;
 }datapack;
+//数据包的解析,并执行相应的命令,传给客户端
+int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlinelist *pNode);
 
 #endif
