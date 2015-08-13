@@ -10,6 +10,7 @@
 #include "../Persistence/user_Per.h"
 #include "log_sev.h"
 
+//在userid文件中寻找friendid并存入data
 inline int finduser_sev(unsigned int userid, unsigned int friendid, int type, userlist *data)
 {
 	int result;
@@ -58,6 +59,7 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	userlist newfriend;
 	char *ifo;
 	int result = selectuserid_Per(friendid, &user);
+	
 	//自己列表中添加好友
 	if (result == -1){
 		ifo = "Can not open the user.dat";
@@ -67,8 +69,9 @@ int add_friend_sev(unsigned int userid, unsigned int friendid)
 	if (result == 0){
 		return 0;
 	}
-	if (finduser_sev(userid, friendid, 0, &newfriend) == 1)
+	if (finduser_sev(userid, friendid, 0, &newfriend) == 1){
 		return 2;
+	}
 	strcpy(newfriend.name, user.name);
 	newfriend.type = 0;	//表示为好友
 	newfriend.id = friendid;

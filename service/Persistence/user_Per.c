@@ -23,7 +23,7 @@ int finduser_Per(unsigned int userid, unsigned int friendid, int type, userlist 
 	char *path = get_pwd();
 	char id[25];
 	FILE *fp;
-	userlist user;
+//	userlist user;
 
 	if (chdir("./data") == -1){
 		system("mkdir data");
@@ -31,19 +31,19 @@ int finduser_Per(unsigned int userid, unsigned int friendid, int type, userlist 
 			return -1;
 		}
 	}
-	
-	sprintf(id, "%d", userid);
+	sprintf(id, "%u", userid);
 	strcat(id, "_list.dat");
 	if ((fp = fopen(id, "rb")) == NULL){
 		chdir(path);
 		return -1;
 	}
-	if (fread(&user, sizeof(userlist), 1, fp)){
-		if ((user.id == friendid) && (user.type == type)){
-			*data = user;
-			fclose(fp);
-			chdir(path);
-			return 1;
+	while(!feof(fp)){
+		if (fread(data, sizeof(userlist), 1, fp)){
+			if ((data->id == friendid) && (data->type == type)){
+				fclose(fp);
+				chdir(path);
+				return 1;
+			}
 		}
 	}
 	fclose(fp);
@@ -145,7 +145,8 @@ int add_friend_Per(unsigned int userid, userlist *newfriend)
 		chdir(path);
 		return 0;
 	}
-
+	fclose(fp);
+	chdir(path);
 	return 1;
 }
 
@@ -169,7 +170,8 @@ int del_friend_Per(unsigned int friendid, unsigned int userid)
 	strcat(id, "_list.dat");
 	strcpy(temp, id);
 	strcat(temp, "_temp");
-	rename(temp, id);
+	if (rename(id,temp) < 0)
+		return -1;
 	if ((fp = fopen(id, "wb")) == NULL){
 		chdir(path);
 		return -1;

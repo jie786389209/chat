@@ -20,10 +20,11 @@ void sendmessage(sendarg *arg)
 	while(1){
 		memset(arg->buf->data, 0, 1024);
 		printf("请输入消息(输入!@#quit结束本次聊天):");
+		setbuf(stdin,NULL);
 		fgets(arg->buf->data, 1024, stdin);
-		if (strcmp(arg->buf->data, "!@#quit") == 0){
+		if (strcmp(arg->buf->data, "!@#quit\n") == 0){
+			pthread_cancel(arg->recvthid);
 			pthread_exit(0);
-			pthread_cancle(arg->recvthid);
 		}
 		if (send(arg->sock, arg->buf, sizeof(datapack), 0) < 0){
 			perror("消息发送失败");
@@ -44,9 +45,10 @@ void recvmessage(int *sock)
 		}
 		else if (len == 0){
 			printf("与服务器连接断开\n");
+			exit(-1);
 		}
 		else{
-			printf("来自:%s(%d)\n",buf.name,buf.source_id);
+			printf("\n来自:%s(%d) ",buf.name,buf.source_id);
 			printf("消息:%s\n",buf.data);
 		}
 	}
@@ -111,7 +113,6 @@ int lognin_sev(int sock)
 			printf("网络故障,登录失败\n");
 			exit(-1);
 		}
-		printf("邱泽名\n");
 		if (recv(sock, &buf, sizeof(datapack), 0) <= 0){
 			printf("网络故障,登录失败\n");
 			exit(-1);
@@ -177,12 +178,14 @@ void signup_sev(int sock)
 }
 
 //私聊
-void chatuser(datapack *buf, int friendid, int sock)
+void chatuser(datapack *buf,int sock)
 {
 	sendarg arg;
 	pthread_t recvthid,sendthid;
 	strcpy(buf->flag, "user");
-	buf->target_id = friendid;
+	printf("请输入好友ID：");
+	scanf("%u",&buf->target_id);
+	setbuf(stdin, NULL);
 	pthread_create(&recvthid, NULL, (void *)recvmessage, &sock);
 	arg.sock = sock;
 	arg.recvthid = recvthid;
@@ -192,12 +195,14 @@ void chatuser(datapack *buf, int friendid, int sock)
 	pthread_join(sendthid, NULL);
 }
 //群聊
-void chatgroup(datapack *buf, int groupid, int sock)
+void chatgroup(datapack *buf, int sock)
 {
 	sendarg arg;
 	pthread_t recvthid,sendthid;
 	strcpy(buf->flag, "group");
-	buf->target_id = groupid;
+	printf("请输入群ID：");
+	setbuf(stdin, NULL);
+	scanf("%u",&buf->target_id);
 	pthread_create(&recvthid, NULL, (void *)recvmessage, &sock);
 	arg.sock = sock;
 	arg.recvthid = recvthid;
@@ -207,10 +212,76 @@ void chatgroup(datapack *buf, int groupid, int sock)
 	pthread_join(sendthid, NULL);
 }
 //加好友
-//void addnewfriend()
-//加群
-//退群
+void addnewfriend(datapack *buf, int sock)
+{
+	strcpy(buf->flag, "addfriend");
+	printf("请输入对方ID：");
+	setbuf(stdin, NULL);
+	scanf("%d",&buf->target_id);
+
+	if (send(sock, buf, sizeof(datapack), 0) < 0){
+		printf("网络故障,加好友失败\n");
+	}
+	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
+		printf("网络故障,加好友失败\n");
+	}
+	else{
+		printf("%s\n",buf->data);
+	}
+}
 //建群
+void bulidgroup(datapack *buf, int sock)
+{
+	strcpy(buf->flag, "bulidgroup");
+	buf->target_id = 111111111;
+	printf("请输入群名称:");
+	setbuf(stdin, NULL);
+	fgets(buf->data, 1024, stdin);
+
+	if (send(sock, buf, sizeof(datapack), 0) < 0){
+		printf("网络故障,建群失败\n");
+	}
+	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
+		printf("网络故障,建群失败\n");
+	}
+	else{
+		printf("%s\n",buf->data);
+	}
+}
+//加群
+void joingroup(datapack *buf, int sock)
+{
+	printf("请输入群号码:");
+	setbuf(stdin,NULL);
+	scanf("%u",&(buf->target_id));
+	strcpy(buf->flag, "addgroup");
+	if (send(sock, buf, sizeof(datapack), 0) < 0){
+		printf("网络故障,加群失败\n");
+	}
+	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
+		printf("网络故障,加群失败\n");
+	}
+	else{
+		printf("%s\n",buf->data);
+	}
+}
+//退群
+void quitgroup(datapack *buf, int sock)
+{
+	printf("请输入群号码:");
+	setbuf(stdin,NULL);
+	scanf("%u",&(buf->target_id));
+	strcpy(buf->flag, "quitgroup");
+	if (send(sock, buf, sizeof(datapack), 0) < 0){
+		printf("网络故障,退群失败\n");
+	}
+	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
+		printf("网络故障,退群失败\n");
+	}
+	else{
+		printf("%s\n",buf->data);
+	}
+}
 //解散群
 //删除好友
 //获取群成员列表

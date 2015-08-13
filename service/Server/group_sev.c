@@ -88,6 +88,8 @@ int joingroup_sev(unsigned int userid, unsigned int groupid)
 	newgroup.type = 1;
 	//根据用户ID提取用户信息
 	selectuserid_Per(userid, &user);
+	printf("user.id = %u\n",user.id);
+	printf("user.name = %s\n",user.name);
 	newuser.id = user.id;
 	strcpy(newuser.name, user.name);
 	newuser.type = 0;

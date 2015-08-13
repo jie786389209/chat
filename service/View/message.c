@@ -88,6 +88,7 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			//检查对方是否为好友
 			if (finduser_sev(buf->source_id, buf->target_id, 0, &my_friend) == 0){
 				strcpy(buf->data, "您输入的用户暂时还不是您的好友哦~~");
+				strcpy(buf->flag, "no");
 			}
 			else{
 				//在对方列表中查找发消息人的备注
@@ -96,9 +97,10 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 				}
 				while(pTemp != NULL){
 					if (pTemp->id == buf->target_id){
-						sock = buf->target_id;
+						sock = pTemp->sock;
 						flag = 1;
 					}
+					pTemp = pTemp->pNext;
 				}
 			
 				//不在线则发送失败
@@ -111,8 +113,9 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			userlist my_friend,newuser;
 			onlinelist *pTemp = pHead->pNext->pNext;
 			//检查是否加群
-			if (finduser_sev(buf->source_id, buf->target_id, 1, &my_friend) == 0){
+			if (finduser_sev(buf->target_id, buf->source_id, 0, &my_friend) == 0){
 				strcpy(buf->data, "您暂时还未加此群哦~~");
+				send(sock, buf, sizeof(datapack), 0);
 			}
 			else{
 				//在消息中打上标签(来自哪个群的×××)
@@ -124,9 +127,11 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 				}
 				//在在线用户列表里找寻是否在群里,如果在则发送
 				while(pTemp != NULL){
-					if (finduser_sev(buf->target_id, pTemp->id, 0, &newuser) == 1){
+					if (finduser_sev(pTemp->id, buf->target_id, 1, &newuser) == 1){
 						send(pTemp->sock, buf, sizeof(datapack), 0);
+						printf("%u",pTemp->id);
 					}
+					pTemp = pTemp->pNext;
 				}
 			}
 			return 1;
@@ -143,18 +148,24 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			else if (result == -1){
 				strcpy(buf->data, "系统繁忙,请稍后再来~~");
 			}
+			else if (result == 2){
+				strcpy(buf->data, "好友已存在");
+			}
 		}	//加群
 		else if (strcmp(buf->flag, "addgroup") == 0){
 			int result;
-			result = add_friend_sev(buf->source_id, buf->target_id);
+			result = joingroup_sev(buf->source_id,buf->target_id);
 			if (result == 1){
-				strcpy(buf->data,"添加成功,现在可以和对方聊天了~~");
+				strcpy(buf->data,"添加成功,现在进入群组聊天了~~");
 			}
 			else if(result == 0){
-				strcpy(buf->data, "未找到用户,请查证后再来~~");
+				strcpy(buf->data, "未找到群组,请查证后再来~~");
 			}
 			else if (result == -1){
 				strcpy(buf->data, "系统繁忙,请稍后再来~~");
+			}
+			else if (result == 2){
+				strcpy(buf->data, "已加该群");
 			}
 		}	//退群
 		else if (strcmp(buf->flag, "quitgroup") == 0){
@@ -253,5 +264,6 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			}
 		}
 	}
+	
 	send(sock, buf, sizeof(datapack), 0);
 }

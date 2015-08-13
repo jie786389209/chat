@@ -20,7 +20,7 @@ typedef struct datapack{
 //发送线程函数参数定义
 typedef struct sendarg{
 	int sock;
-	int recvthid;
+	unsigned long recvthid;
 	datapack *buf;
 }sendarg;
 

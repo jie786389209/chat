@@ -66,8 +66,11 @@ int save_groupifo_Per(groupifo *group)
 		chdir(path);
 		return 0;
 	}
-	if (fwrite(group, sizeof(groupifo), 1, fp) == 0)
+	if (fwrite(group, sizeof(groupifo), 1, fp) == 0){
+		fclose(fp);
+		chdir(path);
 		return 0;
+	}
 	
 	strcpy(cmd, "touch ");
 	sprintf(id, "%d", group->groupid);
