@@ -25,7 +25,7 @@ int main(void)
 	struct sockaddr_in cli_addr,sev_addr;	//客户端、服务器地址结构
 	fd_set readfds,testfds;					//监控集合
 	int cli_count = 0,recv_count,result;	//连接数目、收到字节数目、发生时间数目
-	onlinelist *pHead, *pNew, *pTemp;		//链表操作
+	onlinelist *pHead, *pNew, *pTemp, *pTar;		//链表操作
 	datapack buf;							//数据包
 
 	//开启服务,添加系统日志
@@ -74,7 +74,7 @@ int main(void)
 
 	while(1){
 		testfds = readfds;
-		result = select(41,&testfds,NULL,NULL,NULL);
+		result = select(100,&testfds,NULL,NULL,NULL);
 		if (result == -1){
 			ifo = strerror(errno);
 			add_errorlog_sev(ifo);
@@ -107,13 +107,18 @@ int main(void)
 							cli_count--;
 							close(pTemp->sock);
 							FD_CLR(pTemp->sock,&readfds);
-							del_node(pHead, pTemp, onlinelist);
+							pTar = pTemp;	pTemp = pTemp->pNext;
+							del_node(pHead, pTar, onlinelist);
+							if (pTemp == NULL)
+								break;
 						}
 						else{
 							analyzedatapack(&buf, pTemp->sock, pTemp->ip, pHead, pTemp);
+							printf("哈哈\n");
 						}
 					}
 				}
+				pTemp = pTemp->pNext;
 			}
 		}
 	}

@@ -15,34 +15,35 @@
 
 //尾插一个结点,传进来头结点和新结点
 #define add_tial(pHead,new_node, node_type){	\
-	node_type *pTemp = pHead;				\
-	while(pTemp ->pNext != NULL)	\
-		pTemp = pTemp->pNext;		\
-	(pTemp)->pNext = new_node;		\
+	node_type *pTemp1 = pHead;				\
+	while(pTemp1 ->pNext != NULL)	\
+		pTemp1 = pTemp1->pNext;		\
+	(pTemp1)->pNext = new_node;		\
 	(new_node)->pNext = NULL;			\
 }
 
 //删除一个结点,传进来头结点和待删除结点,结点类型
-#define del_node(pHead,node,node_type){		\
-	node_type *pTemp;		\
-	node_type *pTar;		\
-	pTemp = pHead;			\
-	while(pTemp->pNext != node)	\
-		pTemp = pTemp->pNext;	\
-	pTar = pTemp->pNext;	\
-	pTemp->pNext = pTar->pNext;	\
-	free(pTar);		\
+#define del_node(pHead,node,nodetype){		\
+	nodetype *pTemp2;		\
+	nodetype *pTar1;		\
+	pTemp2 = pHead;			\
+	while((pTemp2 != NULL) && (pTemp2->pNext != node)){	\
+		pTemp2 = pTemp2->pNext;	\
+	}\
+	pTar1 = pTemp2->pNext;	\
+	pTemp2->pNext = pTar1->pNext;	\
+	free(pTar1);		\
 }
 
 //释放链表
 #define list_free(pHead, node_type){	\
-	node_type *pTemp1;	\
-	node_type *pTemp2;	\
-	pTemp2 = pTemp1 = pHead->pNext;		\
-	while(pTemp1 != NULL){			\
-		pTemp1 = pTemp2->pNext;	\
-		free(pTemp2);	\
-		pTemp2 = pTemp1;	\
+	node_type *pTemp3;	\
+	node_type *pTemp4;	\
+	pTemp4 = pTemp3 = pHead->pNext;		\
+	while(pTemp3 != NULL){			\
+		pTemp3 = pTemp4->pNext;	\
+		free(pTemp4);	\
+		pTemp4 = pTemp3;	\
 	}\
 	pHead->pNext = NULL;	\
 }

@@ -19,8 +19,13 @@ int Per_find_userid(void)
 	FILE *fp;
 	char *path = get_pwd();
 	ID data;
-	if (chdir("./data") == -1)
+	if (chdir("./data") == -1){
 		system("mkdir data");
+		if (chdir("./data") == -1){
+			chdir(path);
+			return 0;		
+		}
+	}
 	if ((fp = fopen(ID_FILE,"rb")) == NULL){
 		system("touch id.dat");
 		chdir(path);
@@ -50,8 +55,13 @@ int Per_add_userid(unsigned int new_id)
 	ID data;
 	int flag = 0;
 
-	if (chdir("./data") == -1)
+	if (chdir("./data") == -1){
 		system("mkdir data");
+		if (chdir("./data") == -1){
+			chdir(path);
+			return 0;		
+		}
+	}
 	if (rename(ID_FILE, ID_FILE_TEMP) < 0){
 		chdir(path);
 		return 0;
@@ -94,8 +104,13 @@ int Per_find_groupid(void)
 	FILE *fp;
 	ID data;
 	char *path = get_pwd();
-	if (chdir("./data") == -1)
+	if (chdir("./data") == -1){
 		system("mkdir data");
+		if (chdir("./data") == -1){
+			chdir(path);
+			return 0;		
+		}
+	}
 	if ((fp = fopen(ID_FILE,"rb")) == NULL){
 		system("touch id.dat");
 		chdir(path);
@@ -124,8 +139,13 @@ int Per_add_groupid(unsigned int new_id)
 	ID data;
 	int flag = 0;
 	char *path = get_pwd();
-	if (chdir("./data") == -1)
-		system("mkdir dat");
+		if (chdir("./data") == -1){
+		system("mkdir data");
+		if (chdir("./data") == -1){
+			chdir(path);
+			return 0;		
+		}
+	}
 
 	if (rename(ID_FILE, ID_FILE_TEMP) < 0){
 		chdir(path);

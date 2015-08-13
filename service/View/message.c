@@ -35,11 +35,15 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			for (i = 0; buf->data[i] != '\n'; i++){
 				name[i] = buf->data[i];
 			}
+			name[i] = '\0';
 			i++;
 			while(buf->data[i] != '\0'){
 				passwd[j] = buf->data[i] - 1;
+				i++;	j++;
 			}
+			passwd[i] = '\0';
 			if ((userid = signup_sev(name, passwd)) > 0){
+				strcpy(buf->flag, "sign up yes");
 				strcpy(buf->data,"恭喜您注册成功,您的账号为:");
 				sprintf(name, "%u", userid);
 				strcat(buf->data, name);
@@ -61,13 +65,15 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			i++;
 			while(buf->data[i] != '\0'){
 				passwd[j] = buf->data[i] - 1;
+				j++;	i++;
 			}
 			userid = atoi(user);
-			if (userlognin_sev(userid, passwd, ip) == 0){
+			if (userlognin_sev(userid, passwd, ip) <= 0){
 				strcpy(buf->data, "亲~~您的账号或者密码错了呦~~\n");
 			}
 			else{
 				pNode->id = userid;
+				buf->source_id = userid;
 				strcpy(buf->flag, "logn in yes");
 				strcpy(buf->data, "登陆成功,正在努力跳转~~\n");
 			}

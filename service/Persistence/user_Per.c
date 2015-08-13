@@ -64,6 +64,7 @@ int save_userifo_Per(userifo *user)
 	if (chdir("./data") == -1){
 		system("mkdir data");
 		if (chdir("./data") == -1){
+			chdir(path);
 			return 0;
 		}
 	}
@@ -97,6 +98,7 @@ int selectuserid_Per(unsigned int userid, userifo *user)
 	if (chdir("./data") == -1){
 		system("mkdir data");
 		if (chdir("./data") == -1){
+			chdir(path);
 			return -1;
 		}	
 	}
@@ -105,7 +107,7 @@ int selectuserid_Per(unsigned int userid, userifo *user)
 		return -1;
 	}
 	while(!feof(fp)){
-		if (fread(&user, sizeof(userifo), 1, fp)){
+		if (fread(user, sizeof(userifo), 1, fp)){
 			if (user->id == userid){
 				fclose(fp);
 				chdir(path);

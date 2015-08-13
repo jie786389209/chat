@@ -17,11 +17,19 @@ typedef struct datapack{
 	unsigned int target_id;
 }datapack;
 
-//接收和发送数据函数参数定义
-typedef struct arg{
+//发送线程函数参数定义
+typedef struct sendarg{
 	int sock;
+	int recvthid;
 	datapack *buf;
-}arg;
+}sendarg;
+
+//接收线程函数参数定义
+typedef struct recvarg{
+	int sock;
+	int recvthid;
+	int sendthid;
+}recvarg;
 
 //输入不回显
 char getch(void);
