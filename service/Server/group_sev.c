@@ -55,15 +55,17 @@ inline int selectgroup_sev(unsigned int groupid, groupifo *group)
 }
 
 //解散群
-inline int delgroup_sev(unsigned int groupid)
+inline int delgroup_sev(unsigned int groupid, unsigned int master)
 {
 	char *ifo;
-	if (delgroup_Per(groupid) == 0){
+	int result;
+	result = delgroup_Per(groupid, master);
+	if (result == -1){
 		ifo = "Can not del the group form grouplist.dat";
 		add_errorlog_sev(ifo);
-		return 0;
 	}
-	return 1;
+	
+	return result;
 }
 
 //加群,错误返回-1,成功返回1,失败返回0,已加过该群返回2
@@ -88,8 +90,6 @@ int joingroup_sev(unsigned int userid, unsigned int groupid)
 	newgroup.type = 1;
 	//根据用户ID提取用户信息
 	selectuserid_Per(userid, &user);
-	printf("user.id = %u\n",user.id);
-	printf("user.name = %s\n",user.name);
 	newuser.id = user.id;
 	strcpy(newuser.name, user.name);
 	newuser.type = 0;

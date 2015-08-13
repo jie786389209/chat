@@ -20,6 +20,6 @@ typedef struct groupifo{
 unsigned int buildgroup_sev(unsigned int userid, char name[]);
 
 //解散群
-inline int delgroup_sev(unsigned int groupid);
+inline int delgroup_sev(unsigned int groupid, unsigned int master);
 
 #endif

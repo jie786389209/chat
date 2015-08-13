@@ -193,9 +193,15 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			}
 		}	//解散群
 		else if (strcmp(buf->flag, "delgroup") == 0){
-			int result = delgroup_sev(buf->target_id);
-			if (result == 0){
+			int result = delgroup_sev(buf->target_id, buf->source_id);
+			if (result == -1){
 				strcpy(buf->data, "系统繁忙,解散群失败,请稍后重试=、=");
+			}
+			else if (result == 0){
+				strcpy(buf->data, "该群不存在");
+			}
+			else if (result == 2){
+				strcpy(buf->data, "您不是该群群主，没有解散该群的权限");			
 			}
 			else{
 				strcpy(buf->data, "解散群成功");

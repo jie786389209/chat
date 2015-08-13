@@ -32,11 +32,13 @@ loop:printf("请选择:");
 		signup_sev(sock);
 		goto loop;
 	}
-	addnewfriend(&buf,sock);
-	chatuser(&buf,sock);
+//	delgroup(&buf,sock);
+//	addnewfriend(&buf,sock);
+//	chatuser(&buf,sock);
 //	bulidgroup(&buf,sock);
 //	joingroup(&buf,sock);
 //	quitgroup(&buf,sock);
 //	chatgroup(&buf,sock);
+//	delfriend(&buf,sock);
 	
 }

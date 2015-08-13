@@ -13,6 +13,6 @@
 int  save_groupifo_Per(groupifo *group);
 
 //解散群
-int delgroup_Per(unsigned int groupid);
+int delgroup_Per(unsigned int groupid, unsigned int master);
 
 #endif

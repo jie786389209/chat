@@ -83,34 +83,46 @@ int save_groupifo_Per(groupifo *group)
 	return 1;
 }
 
-//解散群
-int delgroup_Per(unsigned int groupid)
+//解散群,成功返回1,不存在返回0,出错返回-1,不是群主返回2
+int delgroup_Per(unsigned int groupid, unsigned int master)
 {
 	FILE *fp, *fp1;
 	char *path = get_pwd();
 	char name[25];
 	groupifo group;
 	userlist data;
+	int result;
 	
+	result = selectgroup_Per(groupid, &group);
 	//删除群列表文件中的群信息
 	if (chdir("./data") == -1){
 		system("mkdir data");
 		if (chdir("./data") == -1){
-			return 0;
+			return -1;
 		}
+	}
+
+	if (result == 0){
+		return 0;
+	}
+	if (result == -1){
+		return -1;	
+	}
+	if (group.userid != master){
+		return 2;
 	}
 	if (rename(GROUP_FILE, GROUP_FILE_TEMP) < 0){
 		chdir(path);
-		return 0;
+		return -1;
 	}
 	if ((fp = fopen(GROUP_FILE, "wb")) == NULL){
 		chdir(path);
-		return 0;
+		return -1;
 	}
 	if ((fp1 = fopen(GROUP_FILE_TEMP, "rb")) == NULL){
 		fclose(fp);
 		chdir(path);
-		return 0;
+		return -1;
 	}
 	while(!feof(fp1)){
 		if (fread(&group, sizeof(groupifo), 1, fp1)){
@@ -127,18 +139,32 @@ int delgroup_Per(unsigned int groupid)
 	strcat(name, "_list.dat");
 	if ((fp = fopen(name, "rb")) == NULL){
 		chdir(path);
-		return 0;
+		return -1;
 	}
 	while(!feof(fp)){
 		if (fread(&data, sizeof(userlist), 1, fp)){
+			char a[100];
+			strcpy(a,get_pwd());
+			printf("1 = %s\n",a);
+			if (chdir(path) == -1){
+				return -1;
+			}
+			strcpy(a,get_pwd());
+			printf("2 = %s\n",a);
 			del_friend_Per(data.id, groupid);
 			del_friend_Per(groupid, data.id);
+			if (chdir("./data") == -1){
+				system("mkdir data");
+				if (chdir("./data") == -1){
+					return -1;
+				}
+			}
 		}
 	}
 	fclose(fp);
 	remove(name);
-	chdir(path);
 	remove(GROUP_FILE_TEMP);
+	chdir(path);
 
 	return 1;
 }

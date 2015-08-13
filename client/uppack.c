@@ -283,7 +283,41 @@ void quitgroup(datapack *buf, int sock)
 	}
 }
 //解散群
+void delgroup(datapack *buf, int sock)
+{
+	strcpy(buf->flag, "delgroup");
+	printf("请输入群号码:");
+	setbuf(stdin,NULL);
+	scanf("%u",&(buf->target_id));
+	
+	if (send(sock, buf, sizeof(datapack), 0) < 0){
+		printf("网络故障,解散群失败\n");
+	}
+	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
+		printf("网络故障,解散群失败\n");
+	}
+	else{
+		printf("%s\n",buf->data);
+	}
+}
 //删除好友
+void delfriend(datapack *buf, int sock)
+{
+	strcpy(buf->flag, "delfriend");
+	printf("请输入好友ID:");
+	setbuf(stdin,NULL);
+	scanf("%u",&(buf->target_id));
+	
+	if (send(sock, buf, sizeof(datapack), 0) < 0){
+		printf("网络故障,删除好友失败\n");
+	}
+	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
+		printf("网络故障,删除好友失败\n");
+	}
+	else{
+		printf("%s\n",buf->data);
+	}
+}
 //获取群成员列表
 //获取好友列表
 //获取在线好友列表
