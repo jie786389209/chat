@@ -220,8 +220,10 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			}
 		}	//获取群成员列表
 		else if (strcmp(buf->flag, "selectgroup") == 0){
+			char temp[64];
 			if (glancelist_sev(buf->source_id, buf->target_id, sock) == -1){
-				strcpy(buf->data, "系统繁忙,请稍后重试=、=");
+				strcpy(temp, "系统繁忙,请稍后重试=、=");
+				send(sock, temp, strlen(temp), 0);
 				return 0;
 			}
 			else{
@@ -249,7 +251,10 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 					strcat(buf->data, num);
 					send(sock, buf, sizeof(datapack), 0);
 				}
+				pTemp = pTemp->pNext;
 			}
+			buf->target_id = 0;
+			send(sock, buf, sizeof(datapack), 0);
 			return 1;
 			
 		}	//修改好友备注
@@ -258,15 +263,15 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 				strcpy(buf->data, "修改成功");
 			}
 			else{
-				strcpy(buf->data, "修改失败");
+				strcpy(buf->data, "修改失败,可能是该好友不存在~~");
 			}
 		}	//修改群备注
-		else if (strcmp(buf->flag, "renamgroup") == 0){
+		else if (strcmp(buf->flag, "renamegroup") == 0){
 			if (update_groupname_sev(buf->target_id, buf->source_id, buf->data) == 1){
 				strcpy(buf->data, "修改成功");
 			}
 			else{
-				strcpy(buf->data, "修改失败");
+				strcpy(buf->data, "修改失败,可能您还没有加入该群~~");
 			}
 		}
 	}

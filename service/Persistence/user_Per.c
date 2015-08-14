@@ -237,6 +237,7 @@ int update_friend_Per(unsigned int userid, unsigned int friendid, char name[], i
 	return 1;	
 }
 
+//给客户端发送好友列表或群列表文件
 int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 {
 	char *path = get_pwd();
@@ -250,7 +251,7 @@ int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 			return -1;
 		}
 	}
-	
+	//发送用户好友列表
 	if (groupid == 0){
 		sprintf(filename, "%d", userid);
 		strcat(filename, "_list.dat");
@@ -264,11 +265,18 @@ int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 		}
 		sendfile(sock, fd, NULL, buf.st_size);
 		close(fd);
+		chdir(path);
 		return 1;
-	}
+	}  //发送群成员列表
 	else{
 		chdir(path);
 		if (finduser_Per(userid, groupid, 1, &user) == 1){
+			if (chdir("./data") == -1){
+				system("mkdir data");
+				if (chdir("./data") == -1){
+					return -1;
+				}
+			}
 			sprintf(filename, "%d", groupid);
 			strcat(filename, "_list.dat");
 			if (stat(filename, 	&buf) == -1){
@@ -282,6 +290,9 @@ int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 			sendfile(sock, fd, NULL, buf.st_size);
 			close(fd);
 			return 1;
+		}
+		else{
+			return 0;
 		}
 	}
 }

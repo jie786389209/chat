@@ -10,7 +10,7 @@
 
 //数据包定义
 typedef struct datapack{
-	char flag[12];
+	char flag[24];
 	char data[1024];
 	char name[64];		//发的人的昵称或备注
 	unsigned int source_id;
@@ -30,6 +30,19 @@ typedef struct recvarg{
 	int recvthid;
 	int sendthid;
 }recvarg;
+
+//聊天记录数据结构
+typedef struct history{
+	char time[25];
+	datapack buf;
+}history;
+
+//用户列表数据结构
+typedef struct userlist{
+	char name[16];
+	int type;				//标识是好友还是群
+	unsigned int id;
+}userlist;
 
 //输入不回显
 char getch(void);

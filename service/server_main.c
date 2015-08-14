@@ -114,7 +114,6 @@ int main(void)
 						}
 						else{
 							analyzedatapack(&buf, pTemp->sock, pTemp->ip, pHead, pTemp);
-							printf("哈哈\n");
 						}
 					}
 				}

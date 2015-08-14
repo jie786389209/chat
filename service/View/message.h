@@ -19,7 +19,7 @@ typedef struct onlinelist{
 
 //数据包定义
 typedef struct datapack{
-	char flag[12];
+	char flag[24];
 	char data[1024];
 	char name[64];
 	unsigned int source_id;

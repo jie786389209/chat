@@ -2,6 +2,7 @@
 
 void start_menu(void)
 {
+	printf();
 	printf("1、登录\n");
 	printf("2、注册\n");
 }
