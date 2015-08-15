@@ -41,7 +41,7 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 				passwd[j] = buf->data[i] - 1;
 				i++;	j++;
 			}
-			passwd[i] = '\0';
+			passwd[j] = '\0';
 			if ((userid = signup_sev(name, passwd)) > 0){
 				strcpy(buf->flag, "sign up yes");
 				strcpy(buf->data,"恭喜您注册成功,您的账号为:");
@@ -62,11 +62,13 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			for (i = 0; buf->data[i] != '\n'; i++){
 				user[i] = buf->data[i];
 			}
+			user[i] = '\0';
 			i++;
 			while(buf->data[i] != '\0'){
 				passwd[j] = buf->data[i] - 1;
 				j++;	i++;
 			}
+			passwd[j] = '\0';
 			userid = atoi(user);
 			if (userlognin_sev(userid, passwd, ip) <= 0){
 				strcpy(buf->data, "亲~~您的账号或者密码错了呦~~\n");
@@ -87,7 +89,8 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			onlinelist *pTemp = pHead->pNext->pNext;
 			//检查对方是否为好友
 			if (finduser_sev(buf->source_id, buf->target_id, 0, &my_friend) == 0){
-				strcpy(buf->data, "您输入的用户暂时还不是您的好友哦~~");
+				strcpy(buf->data, "您输入的用户暂时还不是您的好友哦~~\n");
+				strcpy(buf->name,"\0");
 				strcpy(buf->flag, "no");
 			}
 			else{
@@ -105,7 +108,12 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			
 				//不在线则发送失败
 				if (flag == 0){
-					strcpy(buf->data, "您发送的用户不在线,请您稍后重试~~");
+					strcpy(buf->data, "您发送的用户不在线,请您稍后重试~~\n");
+					strcpy(buf->name,"\0");
+					strcpy(buf->flag, "no");
+				}
+				else{
+					strcpy(buf->flag,"useryes");
 				}
 			}
 		}	//群聊
@@ -113,9 +121,11 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			userlist my_friend,newuser;
 			onlinelist *pTemp = pHead->pNext->pNext;
 			//检查是否加群
-			if (finduser_sev(buf->target_id, buf->source_id, 0, &my_friend) == 0){
-				strcpy(buf->data, "您暂时还未加此群哦~~");
+			if (finduser_sev(buf->target_id, buf->source_id, 0, &my_friend) <= 0){
+				strcpy(buf->flag, "no");
+				strcpy(buf->data, "您暂时还未加此群哦~~\n");
 				send(sock, buf, sizeof(datapack), 0);
+				return 0;
 			}
 			else{
 				//在消息中打上标签(来自哪个群的×××)
@@ -140,51 +150,51 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			int result;
 			result = add_friend_sev(buf->source_id, buf->target_id);
 			if (result == 1){
-				strcpy(buf->data,"添加成功,现在可以和对方聊天了~~");
+				strcpy(buf->data,"添加成功,现在可以和对方聊天了~~\n");
 			}
 			else if(result == 0){
-				strcpy(buf->data, "未找到用户,请查证后再来~~");
+				strcpy(buf->data, "未找到用户,请查证后再来~~\n");
 			}
 			else if (result == -1){
-				strcpy(buf->data, "系统繁忙,请稍后再来~~");
+				strcpy(buf->data, "系统繁忙,请稍后再来~~\n");
 			}
 			else if (result == 2){
-				strcpy(buf->data, "好友已存在");
+				strcpy(buf->data, "好友已存在\n");
 			}
 		}	//加群
 		else if (strcmp(buf->flag, "addgroup") == 0){
 			int result;
 			result = joingroup_sev(buf->source_id,buf->target_id);
 			if (result == 1){
-				strcpy(buf->data,"添加成功,现在进入群组聊天了~~");
+				strcpy(buf->data,"添加成功,现在进入群组聊天了~~\n");
 			}
 			else if(result == 0){
-				strcpy(buf->data, "未找到群组,请查证后再来~~");
+				strcpy(buf->data, "未找到群组,请查证后再来~~\n");
 			}
 			else if (result == -1){
-				strcpy(buf->data, "系统繁忙,请稍后再来~~");
+				strcpy(buf->data, "系统繁忙,请稍后再来~~\n");
 			}
 			else if (result == 2){
-				strcpy(buf->data, "已加该群");
+				strcpy(buf->data, "已加该群\n");
 			}
 		}	//退群
 		else if (strcmp(buf->flag, "quitgroup") == 0){
 			int result = quitgroup_sev(buf->source_id, buf->target_id);
 			if (result == 0){
-				strcpy(buf->data, "您还没有加该群,无法退出~~");
+				strcpy(buf->data, "您还没有加该群,无法退出~~\n");
 			}
 			else if (result == -1){
-				strcpy(buf->data, "系统繁忙,请稍后重试=、=");
+				strcpy(buf->data, "系统繁忙,请稍后重试=、=\n");
 			}
 			else if (result == 1){
-				strcpy(buf->data, "退群成功~~");
+				strcpy(buf->data, "退群成功~~\n");
 			}
 		}	//建群
 		else if (strcmp(buf->flag, "bulidgroup") == 0){
 			char num[12];
 			unsigned int result = buildgroup_sev(buf->source_id, buf->data);
 			if (result == 0){
-				strcpy(buf->data, "系统繁忙,请稍后重试=、=");
+				strcpy(buf->data, "系统繁忙,请稍后重试=、=\n");
 			}
 			else{
 				strcpy(buf->data, "创建成功,群号码为:");
@@ -195,34 +205,40 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 		else if (strcmp(buf->flag, "delgroup") == 0){
 			int result = delgroup_sev(buf->target_id, buf->source_id);
 			if (result == -1){
-				strcpy(buf->data, "系统繁忙,解散群失败,请稍后重试=、=");
+				strcpy(buf->data, "系统繁忙,解散群失败,请稍后重试=、=\n");
 			}
 			else if (result == 0){
-				strcpy(buf->data, "该群不存在");
+				strcpy(buf->data, "该群不存在\n");
 			}
 			else if (result == 2){
-				strcpy(buf->data, "您不是该群群主，没有解散该群的权限");			
+				strcpy(buf->data, "您不是该群群主，没有解散该群的权限\n");			
 			}
 			else{
-				strcpy(buf->data, "解散群成功");
+				strcpy(buf->data, "解散群成功\n");
 			}
 		}	//删除好友
 		else if (strcmp(buf->flag, "delfriend") == 0){
 			int result = del_friend_sev(buf->target_id, buf->source_id);
 			if (result == 0){
-				strcpy(buf->data, "您删除的用户还不是您的好友或用户不存在");
+				strcpy(buf->data, "您删除的用户还不是您的好友或用户不存在\n");
 			}
 			else if (result == -1){
-				strcpy(buf->data, "系统繁忙,请稍后重试=、=");
+				strcpy(buf->data, "系统繁忙,请稍后重试=、=\n");
 			}
 			else if (result == 1){
-				strcpy(buf->data, "删除成功");
+				strcpy(buf->data, "删除成功\n");
 			}
 		}	//获取群成员列表
 		else if (strcmp(buf->flag, "selectgroup") == 0){
 			char temp[64];
-			if (glancelist_sev(buf->source_id, buf->target_id, sock) == -1){
-				strcpy(temp, "系统繁忙,请稍后重试=、=");
+			int result = glancelist_sev(buf->source_id, buf->target_id, sock);
+			if (result == -1){
+				strcpy(temp, "系统繁忙,请稍后重试=、=\n");
+				send(sock, temp, strlen(temp), 0);
+				return -1;
+			}
+			else if (result == 0){
+				strcpy(temp, "您还没有加入此群,无法查看群成员\n");
 				send(sock, temp, strlen(temp), 0);
 				return 0;
 			}
@@ -231,13 +247,19 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			}
 		}	//获取好友列表
 		else if (strcmp(buf->flag, "selcetfriend") == 0){
-			if (glancelist_sev(buf->source_id, 0, sock) == -1){
-				strcpy(buf->data, "系统繁忙,请稍后重试=、=");
-				return 0;
+			char temp[32];
+			int result = glancelist_sev(buf->source_id, 0, sock);
+			if (result == -1){
+				strcpy(temp, "系统繁忙,请稍后重试=、=\n");
+			}
+			else if (result == 0){
+				strcpy(temp, "您还没有任何好友~~\n");
 			}
 			else{
 				return 1;
 			}
+			send(sock, temp, strlen(temp), 0);
+			return 0;
 		}	//获取在线好友列表
 		else if (strcmp(buf->flag, "onlinefriend") == 0){
 			userlist dat;
@@ -260,18 +282,18 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 		}	//修改好友备注
 		else if (strcmp(buf->flag, "renamefriend") == 0){
 			if (update_friend_sev(buf->source_id, buf->target_id, buf->data) == 1){
-				strcpy(buf->data, "修改成功");
+				strcpy(buf->data, "修改成功\n");
 			}
 			else{
-				strcpy(buf->data, "修改失败,可能是该好友不存在~~");
+				strcpy(buf->data, "修改失败,可能是该好友不存在~~\n");
 			}
 		}	//修改群备注
 		else if (strcmp(buf->flag, "renamegroup") == 0){
 			if (update_groupname_sev(buf->target_id, buf->source_id, buf->data) == 1){
-				strcpy(buf->data, "修改成功");
+				strcpy(buf->data, "修改成功\n");
 			}
 			else{
-				strcpy(buf->data, "修改失败,可能您还没有加入该群~~");
+				strcpy(buf->data, "修改失败,可能您还没有加入该群~~\n");
 			}
 		}
 	}

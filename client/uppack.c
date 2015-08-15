@@ -5,6 +5,7 @@
  * Filename	 : uppack.c
  * Description	 : 将数据包分功能进行打包并发送数据
  * *****************************************************************************/
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,6 +16,8 @@
 #include "message.h"
 #include <time.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 //获取当前系统时间
 void date_now(char now_time[])
@@ -79,22 +82,29 @@ void selecthistory(unsigned int userid)
 	sprintf(id, "%d", userid);
 	strcat(id, "_history.dat");
 	if ((fp = fopen(id, "rb")) == NULL){
-		printf("暂无聊天记录\n");
+		printf("您还没有和任何好友聊过天呢~~\n");
 		chdir(path);
 		return ;
 	}
 
 	while(!feof(fp)){
 		if (fread(&mag, sizeof(history), 1, fp)){
-			if (mag.buf.source_id == userid){
-				printf("时间：%s\n",mag.time);
-				printf("我对(%d)说：%s\n", targetid, mag.buf.data);
+			if ((mag.buf.source_id == userid) && (mag.buf.target_id == targetid)){
+				setbuf(stdin, NULL);
+				printf("\033[0;35m时间：%s\033[0m\n",mag.time);
+				printf("\033[0;31m我对(%d)说：\033[0m%s\n", targetid, mag.buf.data);
+				flag++;
 			}
-			else if (mag.buf.source_id == targetid){
-				printf("时间：%s\n",mag.time);
-				printf("%s(%d)对我说：%s\n",mag.buf.name, targetid, mag.buf.data);
+			else if ((mag.buf.source_id == targetid) && (mag.buf.target_id == userid)){
+				setbuf(stdin, NULL);
+				printf("\033[0;33m时间：%s\033[0m\n",mag.time);
+				printf("\033[0;34m%s(%d)对我说：\033[0m%s",mag.buf.name, targetid, mag.buf.data);
+				flag++;
 			}
 		}
+	}
+	if (flag == 0){
+		printf("您暂未和该好友聊过天哦~~\n");
 	}
 	
 	fclose(fp);
@@ -145,9 +155,12 @@ void recvmessage(int *sock)
 		}
 		else{
 			date_now(time);
-			printf("\n时间：%s\n来自:%s(%d) ",time,buf.name,buf.source_id);
-			printf("消息:%s",buf.data);
-			if ((strcmp(buf.flag, "user") == 0) && (strcmp(buf.flag, "yes") == 0)){
+			if (strcmp(buf.flag, "no") == 0){
+				buf.name[0] = '\0';
+			}
+			printf("\033[0;33m\n时间：%s\n来自:%s(%d) \033[0m",time,buf.name,buf.source_id);
+			printf("\033[0;34m消息:%s\033[0m",buf.data);
+			if (strcmp(buf.flag, "useryes") == 0){
 				addhistory(buf.target_id, &buf, time);
 			}
 		}
@@ -421,25 +434,45 @@ void delfriend(datapack *buf, int sock)
 //获取好友列表
 void selcetfriend(datapack *buf, int sock)
 {
-	char temp[1024];
-	int len;
+	int len, fd;
+	char temp[32];
 	FILE *fp;
 	userlist tempdata;
+	struct stat buffile;
 	strcpy(buf->flag, "selcetfriend");
 	buf->target_id = 1111111;
-	if ((fp = fopen("temp.dat","wb")) == NULL){
+	if ((fd = open("temp.dat",O_WRONLY | O_CREAT | O_TRUNC, 0664)) < 0){
 		printf("系统故障，获取失败=、=");
 		return ;
 	}
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,获取好友列表失败\n");
 	}
-	memset(temp, 0, 1024);
-	if ((len = recv(sock, temp, 1024, 0)) <= 0){
-		printf("网络故障,获取好友列表失败\n");
+
+	int pipefd[2];
+	pipe(pipefd);
+	
+	while(splice(sock, NULL, pipefd[1], NULL, 32768, SPLICE_F_MOVE|SPLICE_F_NONBLOCK) > 0){
+		len = splice(pipefd[0], NULL, fd, NULL, 32768, SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
+		if (len < 32768)
+			break;
 	}
-	fwrite(temp, len, 1, fp);
-	fclose(fp);
+	close(fd);
+	stat("temp.dat", &buffile);
+	
+	if ((buffile.st_size % sizeof(userlist)) != 0){
+		if ((fp = fopen("temp.dat","r")) == NULL){
+			printf("系统故障，获取失败=、=");
+			remove("temp.dat");
+			return ;
+		}
+		fscanf(fp, "%s\n", temp);
+		printf("%s\n",temp);
+		fclose(fp);
+		remove("temp.dat");
+		return ;
+	}
+
 	if ((fp = fopen("temp.dat","rb")) == NULL){
 		printf("系统故障，获取失败=、=");
 		remove("temp.dat");
@@ -470,12 +503,10 @@ void selcetgroup(datapack *buf, int sock)
 	printf("请输入待获取群号：");
 	setbuf(stdin,NULL);
 	scanf("%d",&buf->target_id);
-	printf("群号：%d\n",buf->target_id);
 	if ((fp = fopen("temp.dat","wb")) == NULL){
 		printf("系统故障，获取失败=、=");
 		return ;
 	}
-	printf("群号：%d\n",buf->target_id);
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,获取群成员列表失败\n");
 	}
@@ -483,8 +514,14 @@ void selcetgroup(datapack *buf, int sock)
 	if ((len = recv(sock, temp, 1024, 0)) <= 0){
 		printf("网络故障,获取群成员列表失败\n");
 	}
-	if (strcmp(temp, "系统繁忙,请稍后重试=、=") == 0){
+	if (strcmp(temp, "系统繁忙,请稍后重试=、=\n") == 0){
 		printf("系统繁忙,请稍后重试=、=\n");
+		fclose(fp);
+		remove("temp.dat");
+		return ;
+	}
+	if (strcmp(temp, "您还没有加入此群,无法查看群成员\n") == 0){
+		printf("您还没有加入此群,无法查看群成员\n");
 		fclose(fp);
 		remove("temp.dat");
 		return ;
@@ -549,8 +586,6 @@ void renamefriend(datapack *buf, int sock)
 		temp = getchar();
 	}
 	buf->data[i] = '\0';
-	printf("%s\n",buf->flag);
-	printf("%s\n",buf->data);
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,修改失败\n");
 	}

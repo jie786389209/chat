@@ -79,6 +79,8 @@ loop1:	//主菜单选择
 					exit(0);
 				case 9:		//返回
 					goto loop1;
+				default:
+					goto loop2;
 			}
 			break;
 		case 2:		//管理
@@ -107,6 +109,8 @@ loop1:	//主菜单选择
 					goto loop1;
 				case 0:		//退出
 					exit(0);
+				default:
+					goto loop3;
 			}
 			printf("输入Enter键继续。。。");
 			setbuf(stdin, NULL);
@@ -119,27 +123,27 @@ loop1:	//主菜单选择
 			scanf("%d", &key1);
 			switch(key1){
 				case 1:		//所有好友列表
-					printf("哈哈\n");
-					selcetfriend(&buf, sock);
+					selcetfriend(&buf, sock);	break;
 				case 2:		//在线好友列表
-					selcetfriend(&buf, sock);
+					selcetonlie(&buf, sock);	break;
 				case 3:		//群成员列表
-					selcetgroup(&buf, sock);
+					selcetgroup(&buf, sock);	break;
 				case 4:		//获取聊天记录
-					selecthistory(buf.source_id);
+					selecthistory(buf.source_id);	break;
 				case 9:		//返回
 					goto loop1;
 				case 0:		//退出
 					exit(0);
+				default:
+					goto loop4;
 			}
 			printf("输入Enter键继续。。。");
+			setbuf(stdin,NULL);
 			getchar();
 			goto loop4;
 		case 0:		//退出
 			exit(0);
 		default:	//其他
-			printf("您的输入有误,请重新输入\n");
-			sleep(1);
 			goto loop1;
 	}
 	return EXIT_SUCCESS;

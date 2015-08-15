@@ -25,7 +25,7 @@ int userlognin_sev(unsigned int userid, char passwd[], char ip[])
 		add_errorlog_sev(ifo);
 		return -1;
 	}
-	if ((user.id == userid) && (strcmp(passwd, user.passwd) ==0)){
+	if ((user.id == userid) && (strcmp(passwd, user.passwd) == 0)){
 		ifo = "Lon in";
 		if (add_lognlog_sev(userid, ip, ifo) == 0){
 			ifo = "Can not add lognlog of Log In";

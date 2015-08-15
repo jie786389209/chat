@@ -177,6 +177,7 @@ int del_friend_Per(unsigned int friendid, unsigned int userid)
 		return -1;
 	}
 	if ((fp1 = fopen(temp, "rb")) == NULL){
+		fclose(fp);
 		chdir(path);
 		return -1;
 	}
@@ -184,11 +185,14 @@ int del_friend_Per(unsigned int friendid, unsigned int userid)
 		if (fread(&user, sizeof(userlist), 1, fp1)){
 			if (user.id == friendid){
 				flag = 1;
-				continue;
 			}
-			fwrite(&user, sizeof(userlist), 1, fp);
+			else {
+				fwrite(&user, sizeof(userlist), 1, fp);
+			}
 		}
 	}
+	fclose(fp);
+	fclose(fp1);
 	remove(temp);
 	chdir(path);
 	if (flag == 0)
@@ -259,6 +263,10 @@ int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 			chdir(path);
 			return -1;
 		}
+		if (buf.st_size == 0){
+			chdir(path);
+			return 0;
+		}
 		if ((fd = open(filename, O_RDONLY)) < 0){
 			chdir(path);
 			return -1;
@@ -283,9 +291,16 @@ int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 				chdir(path);
 				return -1;
 			}
+			if (buf.st_size == 0){
+				chdir(path);
+				return 0;
+			}
 			if ((fd = open(filename, O_RDONLY)) < 0){
 				chdir(path);
 				return -1;
+			}
+			if (buf.st_size == 0){
+				return 0;
 			}
 			sendfile(sock, fd, NULL, buf.st_size);
 			close(fd);
