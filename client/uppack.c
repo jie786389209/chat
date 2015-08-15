@@ -147,7 +147,7 @@ void recvmessage(int *sock)
 			date_now(time);
 			printf("\n时间：%s\n来自:%s(%d) ",time,buf.name,buf.source_id);
 			printf("消息:%s",buf.data);
-			if (strcmp(buf.flag, "user") == 0){
+			if ((strcmp(buf.flag, "user") == 0) && (strcmp(buf.flag, "yes") == 0)){
 				addhistory(buf.target_id, &buf, time);
 			}
 		}
@@ -182,7 +182,7 @@ int lognin_sev(int sock)
 	for (count = 0; count < 3; count++){
 		flag = 0;
 		setbuf(stdin,NULL);
-		printf("账号:");
+		printf("\t\t账号:");
 		temp = getchar();
 		for (i = 0; temp != '\n'; i++){
 			buf.data[i] = temp;
@@ -195,13 +195,13 @@ int lognin_sev(int sock)
 			}
 		}
 		if (flag == 1){
-			printf("账号输入有误,账号应为纯数字,请检查后再登录\n");
+			printf("\n\t\t\t\t\t账号输入有误,账号应为纯数字,请检查后再登录\n");
 			setbuf(stdin,NULL);
 			continue;
 		}
 
 		setbuf(stdin,NULL);
-		printf("密码:");
+		printf("\n\t\t密码:");
 		temp = getch();
 		for (i = i + 1; temp != '\n'; i++){
 			buf.data[i] = temp + 1;
@@ -210,22 +210,22 @@ int lognin_sev(int sock)
 		buf.data[i] = '\0';
 		printf("\n");
 		if (send(sock, &buf, sizeof(datapack), 0) < 0){
-			printf("网络故障,登录失败\n");
+			printf("\n\t\t\t网络故障,登录失败\n");
 			exit(-1);
 		}
 		if (recv(sock, &buf, sizeof(datapack), 0) <= 0){
-			printf("网络故障,登录失败\n");
+			printf("\n\t\t\t网络故障,登录失败\n");
 			exit(-1);
 		}
 		if (strcmp(buf.flag, "logn in yes") == 0){
-			printf("%s", buf.data);
+			printf("\n\033[0;31m\t\t\t\t\t%s\003[0m", buf.data);
 			return buf.source_id;
 		}
 		else{
-			printf("%s", buf.data);
+			printf("\n\t\t\t\t\t\033[0;32m%s\033[0m", buf.data);
 		}
 	}
-	printf("您的三次输入机会已到\n");
+	printf("\n\t\t\t\t\t您的三次输入机会已到\n");
 	exit(-1);
 }
 
