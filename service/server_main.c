@@ -107,6 +107,7 @@ int main(void)
 							cli_count--;
 							close(pTemp->sock);
 							FD_CLR(pTemp->sock,&readfds);
+							userlogout_sev(pTemp->id, pTemp->ip);
 							pTar = pTemp;	pTemp = pTemp->pNext;
 							del_node(pHead, pTar, onlinelist);
 							if (pTemp == NULL)

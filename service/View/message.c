@@ -121,7 +121,7 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 			userlist my_friend,newuser;
 			onlinelist *pTemp = pHead->pNext->pNext;
 			//检查是否加群
-			if (finduser_sev(buf->target_id, buf->source_id, 0, &my_friend) <= 0){
+			if (finduser_sev(buf->source_id, buf->target_id, 1, &my_friend) <= 0){
 				strcpy(buf->flag, "no");
 				strcpy(buf->data, "您暂时还未加此群哦~~\n");
 				send(sock, buf, sizeof(datapack), 0);
@@ -139,7 +139,6 @@ int analyzedatapack(datapack *buf, int sock, char ip[], onlinelist *pHead, onlin
 				while(pTemp != NULL){
 					if (finduser_sev(pTemp->id, buf->target_id, 1, &newuser) == 1){
 						send(pTemp->sock, buf, sizeof(datapack), 0);
-						printf("%u",pTemp->id);
 					}
 					pTemp = pTemp->pNext;
 				}

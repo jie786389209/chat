@@ -345,11 +345,18 @@ void addnewfriend(datapack *buf, int sock)
 //建群
 void bulidgroup(datapack *buf, int sock)
 {
+	char temp;
+	int i;
 	strcpy(buf->flag, "bulidgroup");
 	buf->target_id = 111111111;
 	printf("请输入群名称:");
 	setbuf(stdin, NULL);
-	fgets(buf->data, 1024, stdin);
+	temp = getchar();
+	for (i = 0; temp != '\n'; i++){
+		buf->data[i] = temp;
+		temp = getchar();
+	}
+	buf->data[i] = '\0';
 
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,建群失败\n");
@@ -601,7 +608,7 @@ void renamgroup(datapack *buf, int sock)
 {
 	char temp;
 	int i;
-	strcpy(buf->flag, "renamgroup");
+	strcpy(buf->flag, "renamegroup");
 	printf("请输入待修改群名片的群ID:");
 	setbuf(stdin,NULL);
 	scanf("%u",&(buf->target_id));
@@ -613,15 +620,14 @@ void renamgroup(datapack *buf, int sock)
 		temp = getchar();
 	}
 	buf->data[i] = '\0';
-	printf("%s\n",buf->flag);
-	printf("%s\n",buf->data);
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,修改失败\n");
+		return ;
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,修改失败\n");
+		return ;
 	}
-	else{
-		printf("%s\n",buf->data);
-	}
+	
+	printf("%s",buf->data);
 }

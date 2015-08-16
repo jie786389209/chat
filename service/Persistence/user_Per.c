@@ -300,10 +300,13 @@ int glancelist_Per(unsigned int userid, unsigned int groupid, int sock)
 				return -1;
 			}
 			if (buf.st_size == 0){
+				close(fd);
+				chdir(path);
 				return 0;
 			}
 			sendfile(sock, fd, NULL, buf.st_size);
 			close(fd);
+			chdir(path);
 			return 1;
 		}
 		else{

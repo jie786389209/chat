@@ -12,7 +12,7 @@
 typedef struct datapack{
 	char flag[24];
 	char data[1024];
-	char name[64];		//发的人的昵称或备注
+	char name[128];		//发的人的昵称或备注
 	unsigned int source_id;
 	unsigned int target_id;
 }datapack;

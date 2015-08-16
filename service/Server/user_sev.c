@@ -151,14 +151,14 @@ int update_friend_sev(unsigned int userid, unsigned int friendid, char name[])
 int update_groupname_sev(unsigned int groupid, unsigned int userid, char name[])
 {
 	char *ifo;
-	int result = update_friend_Per(groupid, userid, name, 1);
+	int result = update_friend_Per(groupid, userid, name, 0);
 
 	if (result == -1){
 		ifo = "Can not open the file of group_list.dat";
 		add_errorlog_sev(ifo);
 		return -1;
 	}
-	if (result == 0){
+	else if (result == 0){
 		return 0;
 	}
 
