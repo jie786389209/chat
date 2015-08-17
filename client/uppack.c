@@ -176,7 +176,7 @@ char getch(void)
 	ch = getchar();
 	system("stty icanon");
 	system("stty echo");
-	if (ch != '\n')
+	if ((ch != '\n') && (ch != 127))
 		printf("*");
 	return ch;
 }
@@ -216,11 +216,18 @@ int lognin_sev(int sock)
 		setbuf(stdin,NULL);
 		printf("\n\t\t密码:");
 		temp = getch();
-		for (i = i + 1; temp != '\n'; i++){
-			buf.data[i] = temp + 1;
+		for (j = i + 1; temp != '\n'; ){
+			if ((temp == 127) && (j > i + 1)){
+				printf("\b \b");
+				j--;
+			}
+			else if (temp != 127){
+				buf.data[j] = temp + 1;
+				j++;
+			}
 			temp = getch();
 		}
-		buf.data[i] = '\0';
+		buf.data[j] = '\0';
 		printf("\n");
 		if (send(sock, &buf, sizeof(datapack), 0) < 0){
 			printf("\n\t\t\t网络故障,登录失败\n");
@@ -265,11 +272,18 @@ void signup_sev(int sock)
 	setbuf(stdin, NULL);
 	printf("请输入密码：");
 	temp = getch();
-	for (i = i + 1; temp != '\n'; i++){
-		buf.data[i] = temp + 1;
+	for (j = i + 1; temp != '\n'; ){
+		if ((temp == 127) && (j > i + 1)){
+			printf("\b \b");
+			j--;
+		}
+		else if (temp != 127){
+			buf.data[j] = temp + 1;
+			j++;
+		}
 		temp = getch();
 	}
-	buf.data[i] = '\0';
+	buf.data[j] = '\0';
 	printf("\n");
 
 	if (send(sock, &buf, sizeof(datapack), 0) < 0){
@@ -334,9 +348,11 @@ void addnewfriend(datapack *buf, int sock)
 
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,加好友失败\n");
+		exit(0);
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,加好友失败\n");
+		exit(0);
 	}
 	else{
 		printf("%s\n",buf->data);
@@ -360,9 +376,11 @@ void bulidgroup(datapack *buf, int sock)
 
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,建群失败\n");
+		exit(0);
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,建群失败\n");
+		exit(0);
 	}
 	else{
 		printf("%s\n",buf->data);
@@ -377,9 +395,11 @@ void joingroup(datapack *buf, int sock)
 	strcpy(buf->flag, "addgroup");
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,加群失败\n");
+		exit(0);
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,加群失败\n");
+		exit(0);
 	}
 	else{
 		printf("%s\n",buf->data);
@@ -394,9 +414,11 @@ void quitgroup(datapack *buf, int sock)
 	strcpy(buf->flag, "quitgroup");
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,退群失败\n");
+		exit(0);
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,退群失败\n");
+		exit(0);
 	}
 	else{
 		printf("%s\n",buf->data);
@@ -412,9 +434,11 @@ void delgroup(datapack *buf, int sock)
 	
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,解散群失败\n");
+		exit(0);
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,解散群失败\n");
+		exit(0);
 	}
 	else{
 		printf("%s\n",buf->data);
@@ -430,9 +454,11 @@ void delfriend(datapack *buf, int sock)
 	
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,删除好友失败\n");
+		exit(0);
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,删除好友失败\n");
+		exit(0);
 	}
 	else{
 		printf("%s\n",buf->data);
@@ -454,6 +480,7 @@ void selcetfriend(datapack *buf, int sock)
 	}
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,获取好友列表失败\n");
+		exit(0);
 	}
 
 	int pipefd[2];
@@ -520,6 +547,7 @@ void selcetgroup(datapack *buf, int sock)
 	memset(temp, 0, 1024);
 	if ((len = recv(sock, temp, 1024, 0)) <= 0){
 		printf("网络故障,获取群成员列表失败\n");
+		exit(0);
 	}
 	if (strcmp(temp, "系统繁忙,请稍后重试=、=\n") == 0){
 		printf("系统繁忙,请稍后重试=、=\n");
@@ -558,10 +586,12 @@ void selcetonlie(datapack *buf, int sock)
 	buf->target_id = 1111111;
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,获取列表失败\n");
+		exit(0);
 	}
 	while(1){
 		if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 			printf("网络故障,获取列表失败\n");
+			exit(0);
 		}
 		else{
 			if (buf->target_id == 0){
@@ -595,9 +625,11 @@ void renamefriend(datapack *buf, int sock)
 	buf->data[i] = '\0';
 	if (send(sock, buf, sizeof(datapack), 0) < 0){
 		printf("网络故障,修改失败\n");
+		exit(0);
 	}
 	if (recv(sock, buf, sizeof(datapack), 0) <= 0){
 		printf("网络故障,修改失败\n");
+		exit(0);
 	}
 	else{
 		printf("%s\n",buf->data);

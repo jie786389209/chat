@@ -103,12 +103,15 @@ int delgroup_Per(unsigned int groupid, unsigned int master)
 	}
 
 	if (result == 0){
+		chdir(path);
 		return 0;
 	}
 	if (result == -1){
+		chdir(path);
 		return -1;	
 	}
 	if (group.userid != master){
+		chdir(path);
 		return 2;
 	}
 	if (rename(GROUP_FILE, GROUP_FILE_TEMP) < 0){
@@ -150,7 +153,6 @@ int delgroup_Per(unsigned int groupid, unsigned int master)
 				return -1;
 			}
 			strcpy(a,get_pwd());
-			printf("2 = %s\n",a);
 			del_friend_Per(data.id, groupid);
 			del_friend_Per(groupid, data.id);
 			if (chdir("./data") == -1){
